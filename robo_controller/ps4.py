@@ -1,23 +1,36 @@
 import time
+import pprint
 import pygame
 import paho.mqtt.client as mqtt
 
 DUTY_CYCLE_MAX = 12
 DUTY_CYCLE_MIN = 2.5
-LEFT_WEIGHTING_VALUE = 0
-RIGHT_WEIGHTING_VALUE = 0
+LEFT_WEIGHTING_VALUE = 1
+RIGHT_WEIGHTING_VALUE = 1
 AXIS_THRESHOLD = 0.05
 
 
-def get_duty_cycle_left(duty_cycle):
-    return duty_cycle * LEFT_WEIGHTING_VALUE
+def get_max_duty_cycle_left():
+    return DUTY_CYCLE_MAX - 4
 
 
-def get_duty_cycle_right(duty_cycle):
-    return duty_cycle * RIGHT_WEIGHTING_VALUE
+def get_max_duty_cycle_right():
+    return DUTY_CYCLE_MAX - 0
 
 
-class PS4Controller(object):
+def get_min_duty_cycle_left():
+    return DUTY_CYCLE_MIN + 0
+
+
+def get_min_duty_cycle_right():
+    return DUTY_CYCLE_MIN + 0
+
+
+# def get_duty_cycle_right(duty_cycle):
+#     return duty_cycle * RIGHT_WEIGHTING_VALUE
+
+
+class JCU3712FBKController(object):
 
     def __init__(self):
 
@@ -33,38 +46,51 @@ class PS4Controller(object):
             previous_left_servo = None
             previous_right_servo = None
             while True:
+                # e = pygame.event.get()
+                # pprint.pprint(e)
+                # pprint.pprint(pygame.event.get())
                 for event in pygame.event.get():
+                    # pprint.pprint(event)
+                    # if event.type == pygame.BUTTON_WHEELUP:
+                    #     self.axis_data[event.axis] = event.value
+
                     if event.type == pygame.JOYAXISMOTION:
-                        self.axis_data[event.axis] = round(event.value, 2)
+                        print("{} {}".format(event.axis, event.value))
 
-                if self.axis_data:
-                    x = float(self.axis_data[1] - 0.06)
-                    y = float(self.axis_data[1] - 0.06)
+                # if self.axis_data:
+                #     x = float(self.axis_data[1] - 0.06)
+                #     y = float(self.axis_data[0])
+                #     # print(self.axis_data)
+                #     left_servo = 0
+                #     right_servo = 0
+                #     # print("x:{},y:{}".format(x, y))
+                #     if x <= -AXIS_THRESHOLD:
+                #         left_servo = get_max_duty_cycle_left()
+                #         right_servo = get_min_duty_cycle_right()
+                #     elif x >= AXIS_THRESHOLD:
+                #         left_servo = get_min_duty_cycle_left()
+                #         right_servo = get_max_duty_cycle_right()
+                #
+                #     elif y >= AXIS_THRESHOLD + 0.01:
+                #         print(y)
+                #         print("a")
+                #         left_servo = DUTY_CYCLE_MAX - 4
+                #         right_servo = DUTY_CYCLE_MAX - 2
+                #     elif y <= -AXIS_THRESHOLD + 0.01:
+                #         print(y)
+                #         left_servo = DUTY_CYCLE_MIN + 2
+                #         right_servo = DUTY_CYCLE_MIN + 2
 
-                    left_servo = 0
-                    right_servo = 0
-
-                    if x >= AXIS_THRESHOLD:
-                        left_servo = get_duty_cycle_left(DUTY_CYCLE_MAX)
-                        right_servo = get_duty_cycle_right(DUTY_CYCLE_MIN)
-                    elif x <= -AXIS_THRESHOLD:
-                        left_servo = get_duty_cycle_left(DUTY_CYCLE_MIN)
-                        right_servo = get_duty_cycle_right(DUTY_CYCLE_MAX)
-
-                    elif y >= AXIS_THRESHOLD:
-                        left_servo = get_duty_cycle_left(DUTY_CYCLE_MAX)
-                        right_servo = get_duty_cycle_right(DUTY_CYCLE_MAX)
-                    elif y <= -AXIS_THRESHOLD:
-                        left_servo = get_duty_cycle_left(DUTY_CYCLE_MIN)
-                        right_servo = get_duty_cycle_right(DUTY_CYCLE_MIN)
-
-                    if left_servo != previous_left_servo or right_servo != previous_right_servo:
-                        client.publish("nobunaga/servos", "{},{}".format(left_servo, right_servo))
-                        previous_left_servo = left_servo
-                        previous_right_servo = right_servo
+                    # if left_servo != previous_left_servo or right_servo != previous_right_servo:
+                    # if previous_left_servo == 0 and left_servo == 0:
+                    #     continue
+                    # client.publish("nobunaga/servos", "{},{}".format(left_servo, right_servo))
+                    # # print("{}:{}".format(left_servo, right_servo))
+                    # previous_left_servo = left_servo
+                    # previous_right_servo = right_servo
 
                 client.loop()
-                time.sleep(0.03)
+                # time.sleep(0.05)
 
         except KeyboardInterrupt:
             pass
@@ -81,8 +107,7 @@ def on_message(client, userdata, msg):
 def main():
     client = mqtt.Client()
     client.connect("localhost", 1883, 60)
-    client.loop()
-    ps4 = PS4Controller()
+    ps4 = JCU3712FBKController()
     ps4.listen(client)
 
 
