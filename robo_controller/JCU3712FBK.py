@@ -39,6 +39,7 @@ class JCU3712FBKController(object):
         self.controller = pygame.joystick.Joystick(0)
         self.controller.init()
         self.axis_data = {}
+        self.robot_name = "nobunaga"
 
     def listen(self, client):
 
@@ -56,7 +57,16 @@ class JCU3712FBKController(object):
 
                     if event.type == pygame.JOYAXISMOTION:
                         print("{} {}".format(event.axis, event.value))
-
+                        if event.axis == 1:
+                            if event.value >= 1:
+                                client.publish("{}/servos".format(self.robot_name), "{},{}".format(DUTY_CYCLE_MAX, DUTY_CYCLE_MIN))
+                            else:
+                                client.publish("{}/servos".format(self.robot_name), "{},{}".format(DUTY_CYCLE_MIN, DUTY_CYCLE_MAX))
+                        elif event.axis == 0:
+                            if event.value >= 1:
+                                pass
+                            else:
+                                pass
                 # if self.axis_data:
                 #     x = float(self.axis_data[1] - 0.06)
                 #     y = float(self.axis_data[0])
@@ -81,13 +91,13 @@ class JCU3712FBKController(object):
                 #         left_servo = DUTY_CYCLE_MIN + 2
                 #         right_servo = DUTY_CYCLE_MIN + 2
 
-                    # if left_servo != previous_left_servo or right_servo != previous_right_servo:
-                    # if previous_left_servo == 0 and left_servo == 0:
-                    #     continue
-                    # client.publish("nobunaga/servos", "{},{}".format(left_servo, right_servo))
-                    # # print("{}:{}".format(left_servo, right_servo))
-                    # previous_left_servo = left_servo
-                    # previous_right_servo = right_servo
+                # if left_servo != previous_left_servo or right_servo != previous_right_servo:
+                # if previous_left_servo == 0 and left_servo == 0:
+                #     continue
+                # client.publish("nobunaga/servos", "{},{}".format(left_servo, right_servo))
+                # # print("{}:{}".format(left_servo, right_servo))
+                # previous_left_servo = left_servo
+                # previous_right_servo = right_servo
 
                 client.loop()
                 # time.sleep(0.05)
