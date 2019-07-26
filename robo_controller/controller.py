@@ -100,18 +100,18 @@ class JCU3712FBKController(object):
                     if event.type == pygame.JOYAXISMOTION:
                         self.axis_data[event.axis] = round(event.value)
                     if self.axis_data.get(0) == 0 and self.axis_data.get(1) == 0:
-                        previous_payload = self.client.publish_servo(left=0.1, right=0.1, previous_payload=previous_payload)
+                        previous_payload = self.client.publish_servo(left=0, right=0, previous_payload=previous_payload)
                         # previous_payload = self.client.publish_servo(left=0, right=0, previous_payload=previous_payload)
-                    elif self.axis_data.get(0) == -1:
+                    elif self.axis_data.get(0) == 1:
                         # 左旋回
                         previous_payload = self.client.publish_servo(left=self.left_servo.duty_cycle_max - self.d, right=self.right_servo.duty_cycle_max - self.d, previous_payload=previous_payload)
-                    elif self.axis_data.get(0) == 1:
+                    elif self.axis_data.get(0) == -1:
                         # 右旋回
                         previous_payload = self.client.publish_servo(left=self.left_servo.duty_cycle_min + self.d, right=self.right_servo.duty_cycle_min + self.d, previous_payload=previous_payload)
-                    elif self.axis_data.get(1) == -1:
+                    elif self.axis_data.get(1) == 1:
                         # 前進
                         previous_payload = self.client.publish_servo(left=self.left_servo.duty_cycle_max, right=self.right_servo.duty_cycle_min, previous_payload=previous_payload)
-                    elif self.axis_data.get(1) == 1:
+                    elif self.axis_data.get(1) == -1:
                         # 後退
                         previous_payload = self.client.publish_servo(left=self.left_servo.duty_cycle_min, right=self.right_servo.duty_cycle_max, previous_payload=previous_payload)
                     else:
