@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 GPIO.setmode(GPIO.BCM)
 executor = ThreadPoolExecutor()
 
+
 class Wheel(Enum):
     RIGHT = 1
     LEFT = 2
@@ -27,7 +28,6 @@ class Servo(object):
         self.exit = threading.Event()
 
     def run(self, dudy_cycle):
-
         dudy_cycle = float(dudy_cycle)
 
         self.servo.ChangeDutyCycle(dudy_cycle)
@@ -91,26 +91,15 @@ class MQTTClient(object):
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
         client.subscribe("{}/servos".format(self.robot_name), qos=0)
-        # client.subscribe("{}/left".format(self.robot_name), qos=1)
         client.publish("{}/connection".format(self.robot_name), payload=1, qos=1, retain=True)
 
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
-        # self.led_message.output(True)
         logger.info(msg.topic + " " + str(msg.payload))
         if msg.topic == "{}/servos".format(self.robot_name):
             left, right = msg.payload.split(",")
             executor.submit(self.left_servo.run, left)
             executor.submit(self.right_servo.run, right)
-            # self.left_servo.run(left)
-            # self.right_servo.run(right)
-        # if msg.topic == "{}/right".format(self.robot_name):
-        #     self.right_servo.run(msg.payload)
-        #     # self.right_servo.state = int(msg.payload)
-        # elif msg.topic == "{}/left".format(self.robot_name):
-        #     self.left_servo.run(msg.payload)
-        #     # self.left_servo.state = int(msg.payload)
-        # self.led_message.output(False)
 
     def signal_handler(self, number, frame):
         self.__del__()
@@ -132,10 +121,6 @@ def main():
     m_client = MQTTClient(setting.robot_name, setting.servers)
     signal.signal(signal.SIGINT, m_client.signal_handler)
     signal.signal(signal.SIGTERM, m_client.signal_handler)
-    # import time
-    # m_client.left_servo.run(6)
-    # time.sleep(0.1)
-    # m_client.left_servo.run(7)
 
     m_client.connect()
 
