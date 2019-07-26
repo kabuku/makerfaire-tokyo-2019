@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+enum = "*"
+paho-mqtt = "*"
+"RPi.GPIO" = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
