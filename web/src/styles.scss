@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'PixelMPlus';
+  src: url('/assets/fonts/PixelMplus10-Regular.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'PixelMPlus';
+  src: url('/assets/fonts/PixelMplus10-Bold.ttf');
+  font-weight: bold;
+}
+
+
+html, body { height: 100%; }
+body { margin: 0; font-family: 'PixelMPlus', Roboto, "Helvetica Neue", sans-serif; }
+

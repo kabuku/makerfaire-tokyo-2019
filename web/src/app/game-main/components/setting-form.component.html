@@ -1,0 +1,135 @@
+<form [formGroup]="form" fxLayout="column wrap" fxLayoutAlign="space-between stretch" fxLayoutGap="10px" (ngSubmit)="gameOptionsChange.emit(form.value)">
+  <fieldset fxLayout="column wrap" fxLayoutAlign="space-between stretch" fxLayoutGap="10px">
+    <legend>ゲーム設定</legend>
+    <mat-checkbox formControlName="debug">デバッグ</mat-checkbox>
+    <mat-form-field>
+      <mat-label>銃の色</mat-label>
+      <mat-select formControlName="gunColor" required>
+        <mat-option value="gun">オレンジ</mat-option>
+        <mat-option value="gun1">青</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>マシン名</mat-label>
+      <input matInput formControlName="machineName" required>
+    </mat-form-field>
+  </fieldset>
+  <fieldset fxLayout="column wrap" fxLayoutAlign="space-between stretch" fxLayoutGap="10px" formGroupName="model">
+    <legend>モデル設定</legend>
+    <mat-form-field>
+      <mat-label>スケール</mat-label>
+      <input matInput type="number" formControlName="scale">
+    </mat-form-field>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="10px" formGroupName="mae">
+      <div>前</div>
+      <mat-form-field>
+        <mat-label>x</mat-label>
+        <input matInput type="number" formControlName="x">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>y</mat-label>
+        <input matInput type="number" formControlName="y">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>z</mat-label>
+        <input matInput type="number" formControlName="z">
+      </mat-form-field>
+    </div>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="10px" formGroupName="migi">
+      <div>右</div>
+      <mat-form-field>
+        <mat-label>x</mat-label>
+        <input matInput type="number" formControlName="x">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>y</mat-label>
+        <input matInput type="number" formControlName="y">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>z</mat-label>
+        <input matInput type="number" formControlName="z">
+      </mat-form-field>
+    </div>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="10px" formGroupName="hidari">
+      <div>左</div>
+      <mat-form-field>
+        <mat-label>x</mat-label>
+        <input matInput type="number" formControlName="x">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>y</mat-label>
+        <input matInput type="number" formControlName="y">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>z</mat-label>
+        <input matInput type="number" formControlName="z">
+      </mat-form-field>
+    </div>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="10px" formGroupName="ushiro">
+      <div>後</div>
+      <mat-form-field>
+        <mat-label>x</mat-label>
+        <input matInput type="number" formControlName="x">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>y</mat-label>
+        <input matInput type="number" formControlName="y">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>z</mat-label>
+        <input matInput type="number" formControlName="z">
+      </mat-form-field>
+    </div>
+
+  </fieldset>
+  <fieldset fxLayout="row wrap" fxLayoutAlign="space-between stretch" fxLayoutGap="10px" formGroupName="arSourceOptions">
+    <legend>AR設定</legend>
+    <mat-form-field>
+      <mat-label>タイプ</mat-label>
+      <mat-select formControlName="sourceType" required>
+        <mat-option value="webcam">Webカメラ</mat-option>
+        <mat-option value="video">動画ファイル</mat-option>
+        <mat-option value="image">画像ファイル</mat-option>
+        <mat-option value="stream">ストリーム</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div [hidden]="sourceType.value !== 'stream'">
+      <mat-form-field>
+        <mat-label>接続先ホスト名(ポート付き)</mat-label>
+        <input matInput formControlName="hostPath" required>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>シグナリングサーバパス</mat-label>
+        <input matInput formControlName="signalingPath" required>
+      </mat-form-field>
+    </div>
+    <mat-form-field [hidden]="sourceType.value !== 'image' && sourceType.value !== 'video'">
+      <mat-label>リソースURL</mat-label>
+      <input matInput formControlName="sourceUrl">
+    </mat-form-field>
+    <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="10px">
+      <mat-form-field>
+        <mat-label>元画像のwidth</mat-label>
+        <input matInput formControlName="sourceWidth">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>元画像のheight</mat-label>
+        <input matInput formControlName="sourceHeight">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>表示width</mat-label>
+        <input matInput formControlName="displayWidth">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>表示height</mat-label>
+        <input matInput formControlName="displayHeight">
+      </mat-form-field>
+    </div>
+    <div>
+    </div>
+  </fieldset>
+</form>

@@ -1,0 +1,50 @@
+.container {
+  position: relative;
+
+}
+at-scene {
+  height: 480px;
+  display: block;
+}
+.kabukuLogo {
+  width: 100px;
+  filter: brightness(0) invert(1);
+}
+
+.startButton {
+  font-size: xx-large;
+  animation: blink 1s step-end infinite;
+}
+
+.titleSection {
+  margin-bottom: 300px;
+  .title {
+    position: relative;
+    .subTitle {
+      position: absolute;
+      right: -150px;
+      width: 150px;
+      top: -50px;
+      animation: subTitle 3s ease-in ;
+    }
+  }
+
+}
+
+@keyframes subTitle {
+  from {
+    top: -200px;
+  }
+  to {
+    top: -50px;
+  }
+}
+
+
+@keyframes blink {
+  75% {
+    opacity: 0.0;
+  }
+}
+
+

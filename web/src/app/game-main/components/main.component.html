@@ -1,0 +1,56 @@
+<div fxLayout="column" fxLayoutAlign="space-between" fxLayoutGap="16px">
+  <div fxLayout="row" fxLayoutAlign="end stretch" fxLayoutGap="8px">
+<!--    <div *ngIf="gameState">GameStatus: {{gameState.status}}</div>-->
+<!--    <div *ngIf="myState">MyStatus: {{myState.status}}</div>-->
+<!--    <div *ngIf="enemyState">EnemyStatus: {{enemyState.status}}</div>-->
+    <button mat-icon-button (click)="openSettingDialog()">
+      <mat-icon>settings</mat-icon>
+    </button>
+  </div>
+  <div *ngIf="!loading && gameState && myState && enemyState else loadingView" [ngSwitch]="gameState.status"  fxLayout="column" fxLayoutAlign="space-around center">
+    <div *ngSwitchCase="'wait'">
+      <section class="mat-typography titleSection">
+        <h1 class="mat-display-4 title">ガンメンタイセン <img class="subTitle" src="/assets/images/zwei.png" alt="zwei"></h1>
+      </section>
+      <div fxLayout="column" fxLayoutAlign="stretch center">
+        <button class="startButton" color="primary" mat-button (click)="newGame()">Press Start Button</button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="end end">
+        <div>
+        (c) <img class="kabukuLogo" src="/assets/images/kabuku.png" alt="kabuku Inc">
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'prepare'" fxLayout="column" fxLayoutGap="16px">
+      <at-prepare
+        [myState]="myState"
+        [deviceIndex]="videoIndex"
+        (finishSetup)="updateMyStatus.emit({status: 'prepared', value: $event})"
+        (canceled)="updateMyStatus.emit({status: 'prepare', value: undefined})"
+      ></at-prepare>
+      <div fxLayout="column" fxLayoutAlign="space-between center">
+        <button mat-button *ngIf="myState.status === 'prepared' && enemyState.status !== 'prepared'" disabled>対戦相手が準備中...</button>
+        <button mat-button color="primary" *ngIf="myState.status === 'prepared' && enemyState.status === 'prepared'" (click)="updateGameStatus.emit('prepared')">対戦準備完了！</button>
+      </div>
+    </div>
+    <div *ngSwitchDefault>
+      <div class="container">
+        <at-scene
+          [assets]="assets"
+          [gameOptions]="gameOptions"
+          [gameState]="gameState"
+          [myState]="myState"
+          [enemyState]="enemyState"
+          (changeEnemyState)="updateEnemyStatus.emit($event)"
+          (changeMyState)="updateMyStatus.emit($event)"
+          (changeGameState)="updateGameStatus.emit($event)"
+        ></at-scene>
+      </div>
+      <button mat-raised-button color="primary" (click)="start()" *ngIf="gameState.status === 'prepared'">開始</button>
+      <button mat-raised-button (click)="restart()" *ngIf="gameState.status === 'start' || gameState.status === 'prepared'">やり直し</button>
+    </div>
+  </div>
+</div>
+<ng-template #loadingView>
+  アセットを読み込んでるよ {{loading}}
+</ng-template>
