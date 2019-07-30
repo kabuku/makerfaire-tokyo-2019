@@ -1,7 +1,9 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {PlayerState} from '../models/player-state';
+import {FinishPrepareResult} from '../services/game-logic.service';
 
 declare var window: ShapeDetectionWindow;
+const DEFAULT_IMAGE_SIZE = 512;
 
 @Component({
   selector: 'at-prepare',
@@ -12,7 +14,7 @@ export class PrepareComponent implements AfterViewInit {
 
   @Input() myState: PlayerState;
   @Input() deviceIndex: number;
-  @Output() finishSetup = new EventEmitter<string>();
+  @Output() finishSetup = new EventEmitter<FinishPrepareResult>();
   @Output() canceled = new EventEmitter();
 
   @ViewChild('video', {static: true})
@@ -41,6 +43,7 @@ export class PrepareComponent implements AfterViewInit {
   imageCapture: ImageCapture;
   takingPhoto: boolean;
   captureData: string;
+  face: DetectedFace;
   finished: boolean;
   devices: MediaDeviceInfo[];
   videoStarted: boolean;
@@ -160,21 +163,30 @@ export class PrepareComponent implements AfterViewInit {
       }
       const face = faces[0];
       const ctx = this.snapshotCanvas.getContext('2d');
-      this.snapshotCanvas.width = 512;
-      this.snapshotCanvas.height = 512;
+      this.snapshotCanvas.width = DEFAULT_IMAGE_SIZE;
+      this.snapshotCanvas.height = DEFAULT_IMAGE_SIZE;
       const {x, y, width, height} = this.calcBoundingBox(face);
 
-      ctx.drawImage(img, x, y, width, height, 0, 0, 512, 512);
+      ctx.drawImage(img, x, y, width, height, 0, 0, DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE);
+
+      const f2 = await this.faceDetector.detect(this.snapshotCanvas).catch(error => console.log(error));
+
+      if (!f2) {
+        requestAnimationFrame(take);
+        return;
+      }
+      this.face = f2[0];
       this.captureData = this.snapshotCanvas.toDataURL();
       console.log(this.captureData);
       this.takingPhoto = false;
+
     };
     requestAnimationFrame(take);
   }
 
   finishPrepared() {
     this.finished = true;
-    this.finishSetup.emit(this.captureData);
+    this.finishSetup.emit({image: this.captureData, face: this.face});
   }
 
   cancel() {

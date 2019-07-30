@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import {Gun} from './gun';
 import {BattleResult} from '../../components/scene.component';
-import {Explosion} from './fire';
+import {Assets} from '../assets';
+import {BoundingBox, PlayerState} from '../player-state';
 
 const DEFAULT_HIT_POINT = 100;
 
@@ -17,9 +18,12 @@ export class Enemy extends THREE.Group {
   private options: EnemyOptions;
   public hitMesh: THREE.Mesh;
   private hp: number;
-  private face: DetectedFace;
+  private faceCanvas: HTMLCanvasElement;
+  private faceMaterial: THREE.MeshBasicMaterial;
+  private body: THREE.Mesh;
+  private faceImage: HTMLImageElement;
 
-  constructor(gun: THREE.Group, image: string, options?: Partial<EnemyOptions>) {
+  constructor(gun: THREE.Group, private state: PlayerState, private assets: Assets, options?: Partial<EnemyOptions>) {
     super();
     this.options = Object.assign({
       debug: false,
@@ -32,8 +36,9 @@ export class Enemy extends THREE.Group {
     this.gun.name = 'enemyGun';
     this.gun.position.set(-0.533, 0, 0.423);
     this.add(this.gun);
-    const body = this.createBody(image);
+    const body = this.createBody(state);
     this.add(body);
+    this.body = body;
 
     this.hitMesh = new THREE.Mesh(body.geometry.clone(), new THREE.MeshBasicMaterial({transparent: true, opacity: 0}));
     this.add(this.hitMesh);
@@ -41,71 +46,57 @@ export class Enemy extends THREE.Group {
 
   public shot() {
     this.gun.shot();
-
-    if (!this.face) {
-      console.log('face not found');
-      return;
-    }
-
-    const mouth = this.face.landmarks.find(landmark => landmark.type === 'mouth');
-
-    if (!mouth) {
-      console.log('nouse not found');
-      return;
-    }
-
-    const xPositionRate = mouth.locations[0].x / 512;
-    const yPositionRate = mouth.locations[0].y / 512;
-
-    const explosion = new Explosion({});
-
-    explosion.position.set(xPositionRate, 2.08 * yPositionRate, 0);
-    this.add(explosion);
   }
 
-  private createBody(image: string): THREE.Mesh {
-    const bodyMat = new THREE.MeshBasicMaterial({color: this.options.color, transparent: true, opacity: 0.5});
+  private createBody(state: PlayerState): THREE.Mesh {
+    const bodyMat = new THREE.MeshBasicMaterial({color: this.options.color, transparent: true, opacity: 0.1});
+    const {canvas, face} = this.createFace(state);
     const materials = [
       bodyMat,
       bodyMat,
       bodyMat,
       bodyMat,
-      this.createFace(image),
+      face,
       bodyMat,
       bodyMat
     ];
-
+    this.faceMaterial = face;
+    this.faceCanvas = canvas;
     const bodyGeometry = new THREE.BoxBufferGeometry(1, 2.08, 1.94);
+    bodyGeometry.addGroup(18, 6, 7);
     const body = new THREE.Mesh(bodyGeometry, materials);
     body.name = 'enemyBody';
     return body;
   }
 
-  private createFace(image: string): THREE.Material {
+  private createFace(state: PlayerState): { face: THREE.MeshBasicMaterial, canvas: HTMLCanvasElement } {
     const img = document.createElement('img');
     const canvas = document.createElement('canvas');
-    img.src = image;
-
-    img.onload = () => {
-        const fd = new FaceDetector({fastMode: false, maxDetectedFaces: 1});
-        fd.detect(img).then(faces => {
-          this.face = faces[0];
-          const ctx = canvas.getContext('2d');
-          const {x, y, width, height} = this.calcBoundingBox(this.face);
-          console.log(x, y, width, height, this.face.boundingBox);
-          canvas.height = height;
-          canvas.width = width;
-          ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
-        });
-    };
+    img.src = state.image;
+    this.faceImage = img;
+    img.onload = () => this.drawFace();
 
     const texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
-    return new THREE.MeshBasicMaterial({map: texture, overdraw: 1});
+
+    return {
+      face: new THREE.MeshBasicMaterial({map: texture, overdraw: 1}),
+      canvas
+    };
   }
 
-  private calcBoundingBox(face) {
-    let {x, y, width, height} = face.boundingBox;
+  drawFace() {
+    const ctx = this.faceCanvas.getContext('2d');
+    const {x, y, width, height} = this.calcBoundingBox(this.state.face);
+    console.log('face', x, y, width, height);
+    this.faceCanvas.height = height;
+    this.faceCanvas.width = width;
+    ctx.drawImage(this.faceImage, x, y, width, height, 0, 0, width, height);
+    this.faceMaterial.map.needsUpdate = true;
+  }
+
+  private calcBoundingBox(face: BoundingBox) {
+    let {x, y, width, height} = face;
     x = x + (width - width * 4 / 5) / 2;
     y = y + (height - height * 4 / 5) / 2;
     width = width * 4 / 5;
@@ -113,23 +104,31 @@ export class Enemy extends THREE.Group {
     return {x, y, width, height};
   }
 
-  private calcLandmarkPosition(face, landmark: Landmark) {
-    const {width, height} = face.boundingBox;
+  private calcLandmarkPosition(face: BoundingBox, landmark: Point2D) {
+    const {x, y, width, height} = face;
 
-    let {x, y} = landmark.locations[0];
-    x = x + (width - width * 4 / 5) / 2;
-    y = y + (height - height * 4 / 5) / 2;
-    return {x, y};
+    const lx = landmark.x - x - (width - width * 4 / 5) / 2;
+    const ly = landmark.y - y - (height - height * 4 / 5) / 2;
+    return {x: lx, y: ly};
   }
 
 
   update = (delta: number, now: number) => {
     this.gun.update(delta, now);
-  };
+  }
 
   damage(hp: number) {
     this.hp = hp;
     const damageRate = hp / this.options.hitPoint;
+
+    this.drawFace();
+    const ctx = this.faceCanvas.getContext('2d');
+    this.state.eyes.map(eye => this.calcLandmarkPosition(this.state.face, eye)).forEach(p => {
+      ctx.drawImage(this.assets.namida, p.x, p.y + this.state.face.height / 4, this.assets.namida.width / 2, this.assets.namida.height / 2);
+    });
+
+    this.faceMaterial.map.needsUpdate = true;
+
     if (damageRate <= 0.8) {
 
     } else if (damageRate <= 0.5) {

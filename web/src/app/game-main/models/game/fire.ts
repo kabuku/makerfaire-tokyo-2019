@@ -23,6 +23,7 @@ export class Explosion extends THREE.Group {
     return this._burnOut;
   }
   private readonly light: THREE.Light;
+  private fire: Fire;
 
   constructor(options: Partial<ExplosionOptions>) {
     super();
@@ -55,6 +56,7 @@ export class Explosion extends THREE.Group {
     fire.addSource(0.5, 0.1, 0.1, 1.0, 0.0, 1.0);
     fire.position.y -= new THREE.Box3().setFromObject(fire).min.y + 0.05;
     this.add(fire);
+    this.fire = fire;
     if (this.options.makeLight) {
       const light = new THREE.PointLight(0xFFFFFF, this.options.fireLightIntensity, 1, 1.0);
       light.position.set(0.5, 0.5, -1.0);
@@ -65,6 +67,13 @@ export class Explosion extends THREE.Group {
     if (this.options.debug) {
       this.add(new THREE.AxesHelper());
     }
+  }
+
+  lookAt(position: THREE.Vector3) {
+    super.lookAt(position);
+    const pos = position.clone();
+    this.worldToLocal(pos);
+    this.fire.lookAt(pos);
   }
 
   update = (delta: number, now: number) => {

@@ -14,12 +14,15 @@ import {PlayerState} from '../models/player-state';
 import {SpriteText2D, textAlign} from 'three-text2d';
 import {UpdatePlayerStateParams} from '../services/game-logic.service';
 import {SoundEngineService} from '../services/sound-engine.service';
+import * as webvrui from 'webvr-ui';
+import VRControls from 'three-vrcontrols-module';
+import VREffect from 'three-vreffect-module';
+
 
 export type BattleResult = 'draw' | 'win' | 'lose';
 
 const GAME_TIME_SEC = 65;
 const START_COUNTDOWN_SEC = 5;
-
 
 interface ThreeJSDebugWindow extends Window {
   scene: THREE.Scene;
@@ -52,6 +55,8 @@ interface EnemyMarker {
   styleUrls: ['./scene.component.scss']
 })
 export class SceneComponent implements AfterViewInit {
+  private vrEffect: VREffect;
+  private vrDisplay: VRDisplay;
   get enemyState(): PlayerState {
     return this._enemyState;
   }
@@ -171,6 +176,7 @@ export class SceneComponent implements AfterViewInit {
       if (startCountdown.text === '開始') {
 
         if (waitCount === 0) {
+          this.stats.start = true;
           this.startGameTimer();
         }
 
@@ -304,12 +310,9 @@ export class SceneComponent implements AfterViewInit {
 
   private setupExplosions(scene, camera) {
     this.onRenderFcts.push((delta, now) => {
-      this.explosions.filter(ex => ex.burnOut).forEach(ex => {
-        ex.parent.remove(ex);
-      });
+      this.explosions.filter(ex => ex.burnOut).forEach(ex => ex.parent.remove(ex));
       this.explosions = this.explosions.filter(ex => !ex.burnOut);
       this.explosions.forEach(explosion => {
-
         if (explosion.parent !== scene) {
           const cameraPos = camera.position.clone();
           const localCameraPos = explosion.parent.worldToLocal(cameraPos);
@@ -345,7 +348,9 @@ export class SceneComponent implements AfterViewInit {
       this.stats.damage = false;
       this.stats.damaging = true;
       lastDamageTime = now;
-      player.damage(now, this.myState.hp);
+      if (this.stats.start) {
+        player.damage(now, this.myState.hp);
+      }
     });
 
     this.onRenderFcts.push(() => {
@@ -382,18 +387,22 @@ export class SceneComponent implements AfterViewInit {
       }
 
       if (intersectionObject.object.parent != null && intersectionObject.object.parent !== scene) {
-        this.enemyState.hp -= 10;
+        if (this.stats.start) {
+          this.enemyState.hp -= 10;
+        }
         console.log('damage to enemy', intersectionObject.object, intersectionObject.object.parent, intersectionObject.point);
         player.hit();
         this.se.play('damage');
         this.enemies.forEach(enemy => {
           const vec = intersectionObject.point.clone();
-          const v = enemy.parent.worldToLocal(vec);
-          const exe = new Explosion({direction: -1, position: v, fireTime: 10000});
-          console.log(enemy.parent, v);
+          enemy.parent.worldToLocal(vec);
+          const exe = new Explosion({direction: -1, position: vec, fireTime: 10000});
+          console.log(enemy.parent, vec);
           enemy.parent.add(exe);
           exe.position.copy(vec);
-          enemy.damage(this.enemyState.hp);
+          if (this.stats.start) {
+            enemy.damage(this.enemyState.hp);
+          }
           this.explosions.push(exe);
         });
 
@@ -411,7 +420,6 @@ export class SceneComponent implements AfterViewInit {
     });
     return player;
   }
-
 
   private initAr(renderer, camera) {
     let arToolkitSource: THREEx.ArToolkitSource;
@@ -438,9 +446,10 @@ export class SceneComponent implements AfterViewInit {
     });
 
     function onResize() {
-      arToolkitSource.copyElementSizeTo(renderer.domElement);
+      arToolkitSource.onResize();
+      arToolkitSource.copySizeTo(renderer.domElement);
       if (arToolkitContext.arController !== null) {
-        arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
+        arToolkitSource.copySizeTo(arToolkitContext.arController.canvas);
       }
     }
 
@@ -528,7 +537,7 @@ export class SceneComponent implements AfterViewInit {
         patternFile: 'pattern-mae.patt',
         position: new THREE.Vector3(this.gameOptions.model.mae.x, this.gameOptions.model.mae.y, this.gameOptions.model.mae.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, 0, 0),
-        color: new THREE.Color(0xff0000),
+        color: new THREE.Color(0x000000),
       },
       {
         name: 'enemy-ushiro',
@@ -542,14 +551,14 @@ export class SceneComponent implements AfterViewInit {
         patternFile: 'pattern-migi.patt',
         position: new THREE.Vector3(this.gameOptions.model.migi.x, this.gameOptions.model.migi.y, this.gameOptions.model.migi.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, -90 * Math.PI / 180, 0),
-        color: new THREE.Color(0x00ff00),
+        color: new THREE.Color(0x000000),
       },
       {
         name: 'enemy-hidari',
         patternFile: 'pattern-hidari.patt',
         position: new THREE.Vector3(this.gameOptions.model.hidari.x, this.gameOptions.model.hidari.y, this.gameOptions.model.hidari.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, 90 * Math.PI / 180, 0),
-        color: new THREE.Color(0x0000ff),
+        color: new THREE.Color(0x000000),
       },
     ];
 
@@ -559,9 +568,9 @@ export class SceneComponent implements AfterViewInit {
       scene.add(markerRoot);
       const artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
         type: 'pattern',
-        patternUrl: `/assets/marker/${em.patternFile}?${new Date().getTime()}`
+        patternUrl: `/assets/marker/${em.patternFile}`
       });
-      const enemy = new Enemy(this.assets.gun2, this.enemyState.image, {debug: this.gameOptions.debug, color: em.color});
+      const enemy = new Enemy(this.assets.gun2, this.enemyState, this.assets, {debug: this.gameOptions.debug, color: em.color});
       enemy.position.set(em.position.x * scale, em.position.y * scale, em.position.z * scale);
       enemy.rotation.copy(em.rotation);
       enemy.scale.set(scale, scale, scale);

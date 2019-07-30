@@ -17,6 +17,10 @@ export interface Assets {
   damageSound: AudioBuffer;
   shotSound: AudioBuffer;
 
+  // damage
+  namida: HTMLImageElement;
+  bansoukou: HTMLImageElement;
+
 }
 
 

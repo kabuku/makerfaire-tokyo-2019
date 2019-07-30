@@ -1469,6 +1469,15 @@ canonical-path@1.0.0:
   resolved "https://registry.yarnpkg.com/canonical-path/-/canonical-path-1.0.0.tgz#fcb470c23958def85081856be7a86e904f180d1d"
   integrity sha512-feylzsbDxi1gPZ1IjystzIQZagYYLvfKrSuygUCgf7z6x790VEzze5QEkdSV1U58RA7Hi0+v6fv4K54atOzATg==
 
+cardboard-vr-display@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/cardboard-vr-display/-/cardboard-vr-display-1.0.16.tgz#f91e2798e8fb70a348599638c6742c72dfeadabc"
+  integrity sha512-GFBWPMH/ixy4Ji014BAO1ryddGHphtJlA8gUR6UdKsOpPjUQukCKpgsx2XIJ5oBlqXnDQOcLVRqBWyuvTI32jQ==
+  dependencies:
+    gl-preserve-state "^1.0.0"
+    nosleep.js "^0.7.0"
+    webvr-polyfill-dpdb "^1.0.11"
+
 caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
@@ -1991,11 +2000,6 @@ dashdash@^1.12.0:
   integrity sha1-hTz6D3y+L+1d4gMmuN1YEDX24vA=
   dependencies:
     assert-plus "^1.0.0"
-
-dat-gui@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/dat-gui/-/dat-gui-0.5.0.tgz#1212da836109747d0ac220bad7b07c17daa03583"
-  integrity sha1-EhLag2EJdH0KwiC617B8F9qgNYM=
 
 dat.gui@^0.7.6:
   version "0.7.6"
@@ -2532,6 +2536,11 @@ event-emitter@~0.3.5:
     d "1"
     es5-ext "~0.10.14"
 
+eventemitter3@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-2.0.3.tgz#b5e1079b59fb5e1ba2771c0a993be060a58c99ba"
+  integrity sha1-teEHm1n7XhuidxwKmTvgYKWMmbo=
+
 eventemitter3@^3.0.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-3.1.2.tgz#2d3d48f9c346698fce83a85d7d664e98535df6e7"
@@ -2964,6 +2973,11 @@ getpass@^0.1.1:
   integrity sha1-Xv+OPmhNVprkyysSgmBOi6YhSfo=
   dependencies:
     assert-plus "^1.0.0"
+
+gl-preserve-state@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/gl-preserve-state/-/gl-preserve-state-1.0.0.tgz#4ef710d62873f1470ed015c6546c37dacddd4198"
+  integrity sha512-zQZ25l3haD4hvgJZ6C9+s0ebdkW9y+7U2qxvGu1uWOJh8a4RU+jURIKEQhf8elIlFpMH6CrAY2tH0mYrRjet3Q==
 
 glob-parent@^3.1.0:
   version "3.1.0"
@@ -4225,6 +4239,11 @@ lodash@^4.17.11, lodash@^4.17.4, lodash@^4.17.5:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
+lodash@~4.17.15:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
+  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
+
 log4js@^4.0.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/log4js/-/log4js-4.4.0.tgz#3da357d98848596c0ef193f6153ca29d23209217"
@@ -4757,6 +4776,11 @@ normalize-url@1.9.1:
     prepend-http "^1.0.0"
     query-string "^4.1.0"
     sort-keys "^1.0.0"
+
+nosleep.js@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/nosleep.js/-/nosleep.js-0.7.0.tgz#cfd919c25523ca0d0f4a69fb3305c083adaee289"
+  integrity sha1-z9kZwlUjyg0PSmn7MwXAg62u4ok=
 
 npm-bundled@^1.0.1:
   version "1.0.6"
@@ -5892,6 +5916,11 @@ schema-utils@^1.0.0:
     ajv-errors "^1.0.0"
     ajv-keywords "^3.1.0"
 
+screenfull@^3.0.2:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/screenfull/-/screenfull-3.3.3.tgz#8cf7e706aceac2e75131aadcb81b622acfe11d39"
+  integrity sha512-DzYUuXr+OV2BDvYXaYzlYgJd4WXZZ2CW5NFC7Kw6TUCpzXJAx4MwlVD6CH+Mu6fi8rfAQIQfqdFZ4jtDsEkWig==
+
 select-hose@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"
@@ -6627,15 +6656,20 @@ terser@^4.0.0:
     source-map "~0.6.1"
     source-map-support "~0.5.12"
 
-three-particle-fire@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/three-particle-fire/-/three-particle-fire-0.0.0.tgz#d125ae307e31c1f5c8a3d80d5e715661362e5e23"
-  integrity sha1-0SWuMH4xwfXIo9gNXnFWYTYuXiM=
-
 three-text2d@^0.5.3:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/three-text2d/-/three-text2d-0.5.3.tgz#742363ae334a12d6fe71847392fb00f311b6676d"
   integrity sha512-y9WSyVzO2nQ/+ZUsvT4iqgeqRkjh4nhMwOdcNsUbCzgmpORhG8KQRxI4CokWoZYPesj/KwVUJlyzMtQRjo8o6g==
+
+three-vrcontrols-module@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/three-vrcontrols-module/-/three-vrcontrols-module-2.2.1.tgz#00bf9bca96b2f0bd44592df60a22df59beaec91f"
+  integrity sha512-F5ZH9oxR+QMRTAFZ1IxJvF377dNaoG5uZ4eB7NKPqgcUNmYCtZ2yhfbGD7O8RzQm2J+5wGfGTSV5a+GBkeRdsA==
+
+three-vreffect-module@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/three-vreffect-module/-/three-vreffect-module-2.2.0.tgz#ebe86d59ba74a30e4c9a05586ffbceb8d902a0d5"
+  integrity sha512-MczA/QTkJrXUbscWbjgozy0EV5t/tUC9glWC+RiB65XzSEpf/5ikE1AQs9CWXINoyP1bOLiinXlEnfZJauQy4A==
 
 three@*, three@^0.106.2:
   version "0.106.2"
@@ -7060,10 +7094,6 @@ void-elements@^2.0.0:
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-2.0.1.tgz#c066afb582bb1cb4128d60ea92392e94d5e9dbec"
   integrity sha1-wGavtYK7HLQSjWDqkjkulNXp2+w=
 
-"volumetric-fire@https://github.com/yomotsu/VolumetricFire.git":
-  version "0.0.0"
-  resolved "https://github.com/yomotsu/VolumetricFire.git#0e1cd132953790f83048331d7417fd27ab042e84"
-
 watchpack@^1.5.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.6.0.tgz#4bc12c2ebe8aa277a71f1d3f14d685c7b446cd00"
@@ -7245,6 +7275,26 @@ websocket-stream@^5.1.2:
     safe-buffer "^5.1.2"
     ws "^3.2.0"
     xtend "^4.0.0"
+
+webvr-polyfill-dpdb@^1.0.11:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/webvr-polyfill-dpdb/-/webvr-polyfill-dpdb-1.0.16.tgz#7f2cf88460c002a5f10ff69b2bf3a5663e0ad9dd"
+  integrity sha512-FCciTtPhwkYYHGL0K67G8k7ZnNVqnEx3u4NVHLJ0+Ya6f2VTZUl/GJpaEo1Id2pBP/2l0RYZ3IGZE4Pe8fRalg==
+
+webvr-polyfill@^0.10.10:
+  version "0.10.10"
+  resolved "https://registry.yarnpkg.com/webvr-polyfill/-/webvr-polyfill-0.10.10.tgz#f945759a37a2ada57211ed29cf55a80179e74d26"
+  integrity sha512-WdKQ1XR9X2Gj9RUtmr+DajvWBWPva75m1rm0Z7CibR7ZstCm913zHYToxw0p/EK342wAxGfiWKsBmb3Jd5OO0w==
+  dependencies:
+    cardboard-vr-display "^1.0.16"
+
+webvr-ui@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/webvr-ui/-/webvr-ui-0.10.0.tgz#61e1be3ac1285021dcad954ca38fb860ac8d88c5"
+  integrity sha1-YeG+OsEoUCHcrZVMo4+4YKyNiMU=
+  dependencies:
+    eventemitter3 "^2.0.2"
+    screenfull "^3.0.2"
 
 when@~3.6.x:
   version "3.6.4"

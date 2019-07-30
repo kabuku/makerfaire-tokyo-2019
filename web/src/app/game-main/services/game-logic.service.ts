@@ -19,9 +19,14 @@ interface BasicUpdatePlayerStateParams extends BaseUpdatePlayerStateParams {
   value: undefined;
 }
 
+export interface FinishPrepareResult {
+  image: string;
+  face: DetectedFace;
+}
+
 interface PreparedUpdatePlayerStateParams extends BaseUpdatePlayerStateParams {
   status: 'prepared';
-  value: string; // image
+  value: FinishPrepareResult; // image & face
 }
 
 interface HitUpdatePlayerStateParams extends BaseUpdatePlayerStateParams {
@@ -111,7 +116,7 @@ export class GameLogicService {
     } else if (topic === `${this.enemyState.robotName}/status`) {
       this.processUpdatePlayerStatus(val, this.enemyState, this.timeEnemyStateSubject);
     }
-  };
+  }
 
   async init({mqttBrokerHost, myRobotName, enemyRobotName}): Promise<Client> {
     this.myState.robotName = myRobotName;
@@ -138,7 +143,20 @@ export class GameLogicService {
   }
 
   updatePlayerState(params: UpdatePlayerStateParams) {
-    this.mqttClient.publish(`${this.myState.robotName}/status`, `${new Date().toISOString()},${params.status},${params.value}`);
+
+    if (params.status === 'prepared') {
+
+      const {image, face} = params.value;
+      const {x, y, width, height} = face.boundingBox;
+      const eyes = face.landmarks.filter(l => l.type === 'eye').map(l => l.locations[0]).map(l => [l.x, l.y].join(',')).join(',');
+      const mouse = face.landmarks.find(l => l.type === 'mouth');
+
+      const value = `${x},${y},${width},${height},${eyes},${mouse.locations[0].x},${mouse.locations[0].y},${image}`;
+
+      this.mqttClient.publish(`${this.myState.robotName}/status`, `${new Date().toISOString()},${params.status},${value}`);
+    } else {
+      this.mqttClient.publish(`${this.myState.robotName}/status`, `${new Date().toISOString()},${params.status},${params.value}`);
+    }
   }
   updateEnemyState(params: UpdatePlayerStateParams) {
     this.mqttClient.publish(`${this.enemyState.robotName}/status`, `${new Date().toISOString()},${params.status},${params.value}`);
@@ -154,7 +172,12 @@ export class GameLogicService {
     if (playerStatus === 'prepare') {
       newState.image = undefined;
     } else if (playerStatus === 'prepared') {
-      newState.image = value;
+
+      const [x, y, width, height, eye1X, eye1Y, eye2X, eye2Y, mouseX, mouseY, ...image] = value.split(',');
+      newState.face = {x: +x, y: +y, width: +width, height: +height};
+      newState.eyes = [{x: +eye1X, y: +eye1Y}, {x: +eye2X, y: +eye2Y}];
+      newState.mouse = {x: +mouseX, y: +mouseY};
+      newState.image = image.join(',');
     } else if (playerStatus === 'hit') {
       newState.hp = +value;
     }

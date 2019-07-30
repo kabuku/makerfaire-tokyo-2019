@@ -1,10 +1,16 @@
+.scene-wrapper {
+  width: 100%;
+  .scene-actions {
+    width: 100%;
+  }
+}
 .container {
-  position: relative;
-
+  //position: relative;
+  //width: 640px;
 }
 at-scene {
-  height: 480px;
-  display: block;
+  //height: 480px;
+  //display: block;
 }
 .kabukuLogo {
   width: 100px;

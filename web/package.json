@@ -31,6 +31,7 @@
     "@types/stats.js": "^0.17.0",
     "ar.js": "^1.7.2",
     "dat.gui": "^0.7.6",
+    "lodash": "~4.17.15",
     "mqtt": "^3.0.0",
     "process": "^0.11.10",
     "rxjs": "~6.4.0",
@@ -38,7 +39,11 @@
     "stats.js": "^0.17.0",
     "three": "^0.106.2",
     "three-text2d": "^0.5.3",
+    "three-vrcontrols-module": "^2.2.1",
+    "three-vreffect-module": "^2.2.0",
     "tslib": "^1.9.0",
+    "webvr-polyfill": "^0.10.10",
+    "webvr-ui": "^0.10.0",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {

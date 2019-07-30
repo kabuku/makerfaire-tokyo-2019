@@ -10,7 +10,7 @@ import {TextureLoader} from 'three';
 import {HttpClient} from '@angular/common/http';
 
 
-type AssetType = 'json' | 'obj+mtl' | 'texture' | 'sounds';
+type AssetType = 'json' | 'obj+mtl' | 'texture' | 'sounds' | 'image';
 
 interface AssetSource {
   type: AssetType;
@@ -38,8 +38,12 @@ interface SoundsAssetSource extends AssetSource {
   type: 'sounds';
   url: string;
 }
+interface ImageAssetSource extends AssetSource {
+  type: 'image';
+  url: string;
+}
 
-type AssetSources = JSONAssetSource | MTLOBJAssetSource | TextureAssetSource | SoundsAssetSource;
+type AssetSources = JSONAssetSource | MTLOBJAssetSource | TextureAssetSource | SoundsAssetSource | ImageAssetSource;
 
 interface LoadedAsset {
   id: keyof Assets;
@@ -66,9 +70,13 @@ interface SoundLoadedAssets extends LoadedAsset {
   type: 'sounds';
   buffer: AudioBuffer;
 }
+interface ImageLoadedAssets extends LoadedAsset {
+  type: 'image';
+  image: HTMLImageElement;
+}
 
 
-type LoadedAssets = JSONLoadedAssets | MTLOBJLoadedAssets | TextureLoadedAssets | SoundLoadedAssets;
+type LoadedAssets = JSONLoadedAssets | MTLOBJLoadedAssets | TextureLoadedAssets | SoundLoadedAssets | ImageLoadedAssets;
 
 const assetSources: AssetSources[] = [
   {type: 'obj+mtl', id: 'gun', path: '/assets/models/gun/', obj: 'model.obj', mtl: 'materials.mtl'},
@@ -85,6 +93,9 @@ const assetSources: AssetSources[] = [
   {type: 'sounds', id: 'teSound', url: '/assets/sounds/se_te.mp3'},
   {type: 'sounds', id: 'gameStartBgm', url: '/assets/sounds/bgm_gamestart_1.mp3'},
   {type: 'sounds', id: 'selectSound', url: '/assets/sounds/bgm_coinin_1.mp3'},
+  {type: 'image', id: 'bansoukou', url: '/assets/models/damage/bansoukou.png'},
+  {type: 'image', id: 'namida', url: '/assets/models/damage/namida.png'},
+
 ];
 
 @Injectable({
@@ -109,6 +120,8 @@ export class AssetsResolveService implements Resolve<Assets> {
                 return this.loadTextureAsset(source);
               case 'sounds':
                 return this.loadSoundsAsset(source);
+              case 'image':
+                return this.loadImageAsset(source);
             }
           }
         ),
@@ -123,6 +136,9 @@ export class AssetsResolveService implements Resolve<Assets> {
               break;
             case 'sounds':
               assets[asset.id] = asset.buffer;
+              break;
+            case 'image':
+              assets[asset.id] = asset.image;
               break;
           }
           return assets;
@@ -169,5 +185,15 @@ export class AssetsResolveService implements Resolve<Assets> {
       type: source.type,
       id: source.id
     } as JSONLoadedAssets)));
+  }
+
+  private loadImageAsset(source: ImageAssetSource): Promise<ImageLoadedAssets> {
+    return new Promise<ImageLoadedAssets>(r => {
+      const image = new Image();
+      image.src = source.url;
+      image.onload = () => {
+        r({id: source.id, type: 'image', image});
+      };
+    });
   }
 }
