@@ -1,4 +1,4 @@
-<div fxLayout="column" fxLayoutAlign="space-between" fxLayoutGap="16px">
+<div *ngIf="!loading && gameState && myState && enemyState else loadingView" class="gameMainContainer" [ngClass]="{start: gameState.status === 'wait'}" fxLayout="column" fxLayoutAlign="space-between" fxLayoutGap="16px">
   <div fxLayout="row" fxLayoutAlign="end stretch" fxLayoutGap="8px">
 <!--    <div *ngIf="gameState">GameStatus: {{gameState.status}}</div>-->
 <!--    <div *ngIf="myState">MyStatus: {{myState.status}}</div>-->
@@ -7,7 +7,7 @@
       <mat-icon>settings</mat-icon>
     </button>
   </div>
-  <div *ngIf="!loading && gameState && myState && enemyState else loadingView" [ngSwitch]="gameState.status"  fxLayout="column" fxLayoutAlign="space-around center">
+  <div [ngSwitch]="gameState.status"  fxLayout="column" fxLayoutAlign="space-around center">
     <div *ngSwitchCase="'wait'">
       <section class="mat-typography titleSection">
         <h1 class="mat-display-4 title">ガンメンタイセン <img class="subTitle" src="/assets/images/zwei.png" alt="zwei"></h1>
