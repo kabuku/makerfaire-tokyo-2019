@@ -47,7 +47,7 @@ export class Player extends THREE.Group {
   }
 
   hit() {
-    const hitText = new SpriteText2D('Hit!', {align: textAlign.center, font: '50px PixelMPlus', antialias: true, fillStyle: '#0000ff'});
+    const hitText = new SpriteText2D('Hit!', {align: textAlign.center, font: '50px PixelMPlus', antialias: false, fillStyle: '#0fbdff'});
     hitText.translateZ(-0.1);
     hitText.scale.set(0.001, 0.001, 0.001);
     this.add(hitText);
@@ -58,7 +58,7 @@ export class Player extends THREE.Group {
     this.hp = hp;
     const damageText = new SpriteText2D(
       'Damage!',
-      {align: textAlign.center, font: '50px PixelMPlus', antialias: true, fillStyle: '#ff0000'}
+      {align: textAlign.center, font: '50px PixelMPlus', antialias: false, fillStyle: '#d80b05'}
       );
     damageText.translateZ(-0.1);
     damageText.scale.set(0.0005, 0.0005, 0.0005);

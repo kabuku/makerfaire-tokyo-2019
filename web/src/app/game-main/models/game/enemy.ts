@@ -136,10 +136,10 @@ export class Enemy extends THREE.Group {
       .forEach(
         p => ctx.drawImage(
           this.assets.namida,
-          p.x - this.assets.namida.width / 4,
-          p.y + this.state.face.height / 4,
-          this.assets.namida.width / 2,
-          this.assets.namida.height / 2)
+          p.x - this.assets.namida.width / 4 / 2,
+          p.y + this.state.face.height / 4 / 2,
+          this.assets.namida.width / 4,
+          this.assets.namida.height / 4)
       );
     setTimeout(() => this.drawFace(), 2000);
 
@@ -148,16 +148,11 @@ export class Enemy extends THREE.Group {
     if (0.5 < damageRate && damageRate <= 0.8) {
       this.addSmoke(50);
     } else if (0.5 < damageRate && damageRate <= 0.5) {
-      this.addSmoke(80);
-      this.addSmoke(80);
+      this.addSmoke(80, 2);
     } else if (0.1 < damageRate && damageRate <= 0.2) {
-      this.addSmoke(100);
-      this.addSmoke(100);
-      this.addSmoke(100);
+      this.addSmoke(100, 2);
     } else if (damageRate <= 0.1) {
-      this.addSmoke(150);
-      this.addSmoke(150);
-      this.addSmoke(150);
+      this.addSmoke(150, 2);
     }
   }
 
@@ -166,7 +161,6 @@ export class Enemy extends THREE.Group {
     let xf = Math.random();
     let yf = Math.random();
     let zf = Math.random();
-
 
     if (faceSeed < 1.5) {
       xf = faceSeed < 0.8 ? 1 : 0;
@@ -181,7 +175,7 @@ export class Enemy extends THREE.Group {
     return new THREE.Vector3(x, y, z);
   }
 
-  private addSmoke(particleCount = 50) {
+  private addSmoke(particleCount = 50, count = 1) {
     const smokeGroup = new SPE.Group({
       texture: {
         value: this.assets.smokeparticle,
@@ -190,38 +184,42 @@ export class Enemy extends THREE.Group {
       depthWrite: true,
       blending: THREE.NormalBlending,
     });
-    const smoke = new SPE.Emitter({
-      maxAge: {value: 3},
-      position: {
-        value: this.getRandomBodyFacePosition(),
-        spread: new THREE.Vector3(0.1, 0.05, 0.2),
-      },
-      size: {
-        value: [0.4, 1],
-        spread: [0, 0.1, 0.2]
-      },
-      acceleration: {
-        value: new THREE.Vector3(0, 0, 0),
-      },
-      rotation: {
-        axis: new THREE.Vector3(0, 1, 0),
-        spread: new THREE.Vector3(0, 1, 0),
-        angle: 100 * Math.PI / 180,
-      },
-      velocity: {
-        value: new THREE.Vector3(0, 0.5, 0),
-        spread: new THREE.Vector3(0.25, 0.1, 0.25)
-      },
-      opacity: {
-        value: [0.4, 1, 0]
-      },
-      color: {
-        value: [new THREE.Color(0x222222), new THREE.Color(0x000000)],
-        spread: [new THREE.Vector3(0.2, 0.1, 0.1), new THREE.Vector3(0, 0, 0)]
-      },
-      particleCount,
-    });
-    smokeGroup.addEmitter(smoke);
+
+    for (let i = 0; i < count; i++) {
+      const smoke = new SPE.Emitter({
+        maxAge: {value: 3},
+        position: {
+          value: this.getRandomBodyFacePosition(),
+          spread: new THREE.Vector3(0.1, 0.05, 0.2),
+        },
+        size: {
+          value: [0.4, 1],
+          spread: [0, 0.1, 0.2]
+        },
+        acceleration: {
+          value: new THREE.Vector3(0, 0, 0),
+        },
+        rotation: {
+          axis: new THREE.Vector3(0, 1, 0),
+          spread: new THREE.Vector3(0, 1, 0),
+          angle: 100 * Math.PI / 180,
+        },
+        velocity: {
+          value: new THREE.Vector3(0, 0.5, 0),
+          spread: new THREE.Vector3(0.25, 0.1, 0.25)
+        },
+        opacity: {
+          value: [0.4, 1, 0]
+        },
+        color: {
+          value: [new THREE.Color(0x222222), new THREE.Color(0x000000)],
+          spread: [new THREE.Vector3(0.2, 0.1, 0.1), new THREE.Vector3(0, 0, 0)]
+        },
+        particleCount,
+      });
+      smokeGroup.addEmitter(smoke);
+    }
+
     this.speGroups.push(smokeGroup);
     this.add(smokeGroup.mesh);
   }
