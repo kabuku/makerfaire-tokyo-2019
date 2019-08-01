@@ -14,9 +14,6 @@ import {PlayerState} from '../models/player-state';
 import {SpriteText2D, textAlign} from 'three-text2d';
 import {UpdatePlayerStateParams} from '../services/game-logic.service';
 import {SoundEngineService} from '../services/sound-engine.service';
-import * as webvrui from 'webvr-ui';
-import VRControls from 'three-vrcontrols-module';
-import VREffect from 'three-vreffect-module';
 
 
 export type BattleResult = 'draw' | 'win' | 'lose';
@@ -55,8 +52,6 @@ interface EnemyMarker {
   styleUrls: ['./scene.component.scss']
 })
 export class SceneComponent implements AfterViewInit {
-  private vrEffect: VREffect;
-  private vrDisplay: VRDisplay;
   get enemyState(): PlayerState {
     return this._enemyState;
   }
@@ -531,6 +526,16 @@ export class SceneComponent implements AfterViewInit {
 
   private setupEnemy(scene: THREE.Scene, arToolkitContext: THREEx.ArToolkitContext, camera: THREE.Camera) {
     const scale = this.gameOptions.model.scale || 1.2;
+    //
+    // const g = new THREE.Group();
+    // const e =  new Enemy(this.assets.gun2, this.enemyState, this.assets, {debug: this.gameOptions.debug});
+    // g.add(e);
+    // g.position.set(0, 0, -5);
+    // this.scene.add(g);
+    // this.onRenderFcts.push(e.update);
+    // this.enemies.push(e);
+    // this.hitTargets.push(g);
+
     const enemyMarkerOptions: EnemyMarker[] = [
       {
         name: 'enemy-mae',

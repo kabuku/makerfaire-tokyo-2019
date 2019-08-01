@@ -8,6 +8,7 @@ import {PlayerState} from '../models/player-state';
 import {UpdatePlayerStateParams} from '../services/game-logic.service';
 import {GameState, GameStatus} from '../models/game-state';
 import {SoundEngineService} from '../services/sound-engine.service';
+import {demoFaceImage} from '../../demo';
 
 @Component({
   selector: 'at-main',
@@ -51,6 +52,7 @@ export class MainComponent implements OnInit {
   start() {
     this.updateGameStatus.emit('start');
   }
+
   restart() {
     this.sceneRef.restart();
     this.updateGameStatus.emit('prepared');
@@ -63,5 +65,46 @@ export class MainComponent implements OnInit {
     this.se.play('select', 0, 0.35);
 
     this.updateGameStatus.emit('prepare');
+  }
+
+  demo() {
+    this.updateMyStatus.emit({
+      status: 'prepared',
+      value: {
+        image: demoFaceImage,
+        face: {
+          boundingBox: {
+            x: 43,
+            y: 37,
+            width: 426,
+            height: 426
+          },
+          landmarks: [{type: 'eye', locations: [{x: 171, y: 168}]}, {
+            type: 'eye',
+            locations: [{x: 338, y: 165}]
+          }, {type: 'mouth', locations: [{x: 257, y: 356}]}]
+        }
+      }
+    });
+
+    this.updateEnemyStatus.emit({
+      status: 'prepared',
+      value: {
+        image: demoFaceImage,
+        face: {
+          boundingBox: {
+            x: 43,
+            y: 37,
+            width: 426,
+            height: 426
+          },
+          landmarks: [{type: 'eye', locations: [{x: 171, y: 168}]}, {
+            type: 'eye',
+            locations: [{x: 338, y: 165}]
+          }, {type: 'mouth', locations: [{x: 257, y: 356}]}]
+        }
+      }
+    });
+    this.newGame();
   }
 }

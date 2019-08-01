@@ -10,7 +10,7 @@
   <div [ngSwitch]="gameState.status"  fxLayout="column" fxLayoutAlign="space-around center">
     <div *ngSwitchCase="'wait'">
       <section class="mat-typography titleSection">
-        <h1 class="mat-display-4 title">ガンメンタイセン <img class="subTitle" src="/assets/images/zwei.png" alt="zwei"></h1>
+        <h1 class="mat-display-4 title">ガンメンタイセン <img class="subTitle" src="/assets/images/zwei.png" (click)="demo()" alt="zwei"></h1>
       </section>
       <div fxLayout="column" fxLayoutAlign="stretch center">
         <button class="startButton" color="primary" mat-button (click)="newGame()">Press Start Button</button>

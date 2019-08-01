@@ -6,6 +6,7 @@ export interface Assets {
   glass1: THREE.Texture;
   glass2: THREE.Texture;
   glass3: THREE.Texture;
+  smokeparticle: THREE.Texture;
 
   // sounds
   prepareBgm: AudioBuffer;

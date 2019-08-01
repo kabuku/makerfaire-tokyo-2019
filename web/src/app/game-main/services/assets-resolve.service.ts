@@ -95,6 +95,7 @@ const assetSources: AssetSources[] = [
   {type: 'sounds', id: 'selectSound', url: '/assets/sounds/bgm_coinin_1.mp3'},
   {type: 'image', id: 'bansoukou', url: '/assets/models/damage/bansoukou.png'},
   {type: 'image', id: 'namida', url: '/assets/models/damage/namida.png'},
+  {type: 'texture', id: 'smokeparticle', url: '/assets/models/spe/smokeparticle.png'}
 
 ];
 
