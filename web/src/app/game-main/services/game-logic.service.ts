@@ -21,7 +21,15 @@ interface BasicUpdatePlayerStateParams extends BaseUpdatePlayerStateParams {
 
 export interface FinishPrepareResult {
   image: string;
-  face: DetectedFace;
+  face: {
+    boundingBox: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    },
+    landmarks: {type: LandmarkType, locations: Point2D[]}[]
+  };
 }
 
 interface PreparedUpdatePlayerStateParams extends BaseUpdatePlayerStateParams {
@@ -139,13 +147,20 @@ export class GameLogicService {
 
 
   updateGameStatus(status: GameStatus) {
+
     this.mqttClient.publish('game/status', `${new Date().toISOString()},${status}`);
   }
 
   updatePlayerState(params: UpdatePlayerStateParams) {
+    this.updateState(params, this.myState.robotName);
+  }
+  updateEnemyState(params: UpdatePlayerStateParams) {
+    this.updateState(params, this.enemyState.robotName);
+  }
 
+  private updateState(params: UpdatePlayerStateParams, robotName) {
+    console.log(robotName, params);
     if (params.status === 'prepared') {
-
       const {image, face} = params.value;
       const {x, y, width, height} = face.boundingBox;
       const eyes = face.landmarks.filter(l => l.type === 'eye').map(l => l.locations[0]).map(l => [l.x, l.y].join(',')).join(',');
@@ -153,13 +168,10 @@ export class GameLogicService {
 
       const value = `${x},${y},${width},${height},${eyes},${mouse.locations[0].x},${mouse.locations[0].y},${image}`;
 
-      this.mqttClient.publish(`${this.myState.robotName}/status`, `${new Date().toISOString()},${params.status},${value}`);
+      this.mqttClient.publish(`${robotName}/status`, `${new Date().toISOString()},${params.status},${value}`);
     } else {
-      this.mqttClient.publish(`${this.myState.robotName}/status`, `${new Date().toISOString()},${params.status},${params.value}`);
+      this.mqttClient.publish(`${robotName}/status`, `${new Date().toISOString()},${params.status},${params.value}`);
     }
-  }
-  updateEnemyState(params: UpdatePlayerStateParams) {
-    this.mqttClient.publish(`${this.enemyState.robotName}/status`, `${new Date().toISOString()},${params.status},${params.value}`);
   }
 
   private processUpdatePlayerStatus(payload: string, state: PlayerState, subject: Subject<TimePlayerState>) {

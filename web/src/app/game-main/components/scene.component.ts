@@ -14,9 +14,6 @@ import {PlayerState} from '../models/player-state';
 import {SpriteText2D, textAlign} from 'three-text2d';
 import {UpdatePlayerStateParams} from '../services/game-logic.service';
 import {SoundEngineService} from '../services/sound-engine.service';
-import * as webvrui from 'webvr-ui';
-import VRControls from 'three-vrcontrols-module';
-import VREffect from 'three-vreffect-module';
 
 
 export type BattleResult = 'draw' | 'win' | 'lose';
@@ -55,8 +52,6 @@ interface EnemyMarker {
   styleUrls: ['./scene.component.scss']
 })
 export class SceneComponent implements AfterViewInit {
-  private vrEffect: VREffect;
-  private vrDisplay: VRDisplay;
   get enemyState(): PlayerState {
     return this._enemyState;
   }
@@ -165,7 +160,7 @@ export class SceneComponent implements AfterViewInit {
 
   private startStartCountdown() {
 
-    const startCountdown = new SpriteText2D('5', {align: textAlign.center, font: '50px Arial', fillStyle: '#000000', antialias: true});
+    const startCountdown = new SpriteText2D('5', {align: textAlign.center, font: '50px PixelMPlus', fillStyle: '#000000', antialias: true});
     this.se.play('te');
     startCountdown.translateZ(-0.1);
     this.scene.add(startCountdown);
@@ -206,7 +201,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private startGameTimer() {
-    const countdown = new SpriteText2D('60', {align: textAlign.center, font: '50px Arial', fillStyle: '#000000', antialias: true});
+    const countdown = new SpriteText2D('60', {align: textAlign.center, font: '50px PixelMPlus', fillStyle: '#000000', antialias: true});
     countdown.translateY(0.031);
     countdown.translateZ(-0.1);
     countdown.scale.set(0.0002, 0.0002, 0.0002);
@@ -531,6 +526,7 @@ export class SceneComponent implements AfterViewInit {
 
   private setupEnemy(scene: THREE.Scene, arToolkitContext: THREEx.ArToolkitContext, camera: THREE.Camera) {
     const scale = this.gameOptions.model.scale || 1.2;
+
     const enemyMarkerOptions: EnemyMarker[] = [
       {
         name: 'enemy-mae',

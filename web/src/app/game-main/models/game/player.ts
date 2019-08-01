@@ -11,8 +11,6 @@ interface PlayerOptions {
   hitPoint: number;
 }
 
-
-
 export class Player extends THREE.Group {
 
   private readonly gun: Gun;
@@ -49,7 +47,7 @@ export class Player extends THREE.Group {
   }
 
   hit() {
-    const hitText = new SpriteText2D('Hit!', {align: textAlign.center, font: '50px Arial', antialias: true, fillStyle: '#0000ff'});
+    const hitText = new SpriteText2D('Hit!', {align: textAlign.center, font: '50px PixelMPlus', antialias: false, fillStyle: '#0fbdff'});
     hitText.translateZ(-0.1);
     hitText.scale.set(0.001, 0.001, 0.001);
     this.add(hitText);
@@ -58,7 +56,10 @@ export class Player extends THREE.Group {
 
   damage(now: number, hp: number) {
     this.hp = hp;
-    const damageText = new SpriteText2D('Damage!', {align: textAlign.center, font: '50px Arial', antialias: true, fillStyle: '#ff0000'});
+    const damageText = new SpriteText2D(
+      'Damage!',
+      {align: textAlign.center, font: '50px PixelMPlus', antialias: false, fillStyle: '#d80b05'}
+      );
     damageText.translateZ(-0.1);
     damageText.scale.set(0.0005, 0.0005, 0.0005);
     this.add(damageText);
@@ -88,7 +89,7 @@ export class Player extends THREE.Group {
   }
   private draw() {
     // tslint:disable-next-line:max-line-length
-    const drawText = new SpriteText2D('Draw. Nice Fight!', {align: textAlign.center, font: '50px Arial', antialias: true, fillStyle: '#ff0000'});
+    const drawText = new SpriteText2D('Draw. Nice Fight!', {align: textAlign.center, font: '50px PixelMPlus', antialias: true, fillStyle: '#ff0000'});
     drawText.translateZ(-0.1);
     drawText.scale.set(0.0001, 0.0001, 0.0001);
     this.add(drawText);
@@ -96,13 +97,13 @@ export class Player extends THREE.Group {
 
   private lose() {
     this.hp = 0;
-    const loseText = new SpriteText2D('You Lose...', {align: textAlign.center, font: '50px Arial', antialias: true, fillStyle: '#ff0000'});
+    const loseText = new SpriteText2D('You Lose...', {align: textAlign.center, font: '50px PixelMPlus', antialias: true, fillStyle: '#ff0000'});
     loseText.translateZ(-0.1);
     loseText.scale.set(0.0001, 0.0001, 0.0001);
     this.add(loseText);
   }
   private win() {
-    const winText = new SpriteText2D('You Win!!!', {align: textAlign.center, font: '50px Arial', antialias: true, fillStyle: '#0000ff'});
+    const winText = new SpriteText2D('You Win!!!', {align: textAlign.center, font: '50px PixelMPlus', antialias: true, fillStyle: '#0000ff'});
     winText.translateZ(-0.1);
     winText.scale.set(0.0001, 0.0001, 0.0001);
     this.add(winText);
