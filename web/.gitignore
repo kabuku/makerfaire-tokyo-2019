@@ -47,3 +47,5 @@ Thumbs.db
 
 message.txt
 src/assets/movie
+
+!src/assets/models/env
