@@ -46,6 +46,16 @@ interface EnemyMarker {
   color?: THREE.Color;
 }
 
+interface EnvMarker {
+  name: string;
+  patternFile: string;
+  models: {
+    model: THREE.Object3D;
+    scale: number;
+    position: THREE.Vector3;
+  }[];
+}
+
 @Component({
   selector: 'at-scene',
   templateUrl: './scene.component.html',
@@ -289,11 +299,15 @@ export class SceneComponent implements AfterViewInit {
     // setup enemy
     this.setupEnemy(scene, arToolkitContext, camera);
 
+    // setup env
+    this.setupEnvironment(scene, arToolkitContext);
+
     // setup explosions
     this.setupExplosions(scene, camera);
 
     // setup player
     this.setupPlayer(scene, renderer, camera);
+
 
     // render the scene
     this.onRenderFcts.push(() => {
@@ -566,34 +580,137 @@ export class SceneComponent implements AfterViewInit {
     return {renderer, renderer2};
   }
 
+  private setupEnvironment(scene: THREE.Scene, arToolkitContext: THREEx.ArToolkitContext) {
+
+    const envMarkerOptions: EnvMarker[] = [
+      {
+        name: 'tree1',
+        patternFile: 'pattern-T.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+      {
+        name: 'tree2',
+        patternFile: 'pattern-S.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+      {
+        name: 'tree3',
+        patternFile: 'pattern-V.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+      {
+        name: 'tree4',
+        patternFile: 'pattern-W.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+      {
+        name: 'tree5',
+        patternFile: 'pattern-X.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+      {
+        name: 'tree6',
+        patternFile: 'pattern-Y.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+      {
+        name: 'tree7',
+        patternFile: 'pattern-Z.patt',
+        models: [
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, -1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+        ],
+      },
+    ];
+
+    envMarkerOptions.forEach(em => {
+      const markerRoot = new THREE.Group();
+      markerRoot.name = em.name;
+      const artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+        type: 'pattern',
+        patternUrl: `/assets/marker/${em.patternFile}`
+      });
+      scene.add(markerRoot);
+      em.models.forEach(model => {
+        const m = model.model.clone();
+        const g = new THREE.Group();
+        g.add(m);
+        markerRoot.add(g);
+        m.position.copy(model.position);
+        g.scale.set(model.scale, model.scale, model.scale);
+      });
+      this.hitTargets.push(markerRoot);
+    });
+
+  }
+
   private setupEnemy(scene: THREE.Scene, arToolkitContext: THREEx.ArToolkitContext, camera: THREE.Camera) {
     const scale = this.gameOptions.model.scale || 1.2;
 
     const enemyMarkerOptions: EnemyMarker[] = [
       {
         name: 'enemy-mae',
-        patternFile: 'pattern-mae.patt',
+        patternFile: 'pattern-F.patt',
         position: new THREE.Vector3(this.gameOptions.model.mae.x, this.gameOptions.model.mae.y, this.gameOptions.model.mae.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, 0, 0),
         color: new THREE.Color(0x000000),
       },
       {
         name: 'enemy-ushiro',
-        patternFile: 'pattern-usiro.patt',
+        patternFile: 'pattern-B.patt',
         position: new THREE.Vector3(this.gameOptions.model.ushiro.x, this.gameOptions.model.ushiro.y, this.gameOptions.model.ushiro.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, 180 * Math.PI / 180, 0),
         color: new THREE.Color(0x000000),
       },
       {
         name: 'enemy-migi',
-        patternFile: 'pattern-migi.patt',
+        patternFile: 'pattern-R.patt',
         position: new THREE.Vector3(this.gameOptions.model.migi.x, this.gameOptions.model.migi.y, this.gameOptions.model.migi.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, -90 * Math.PI / 180, 0),
         color: new THREE.Color(0x000000),
       },
       {
         name: 'enemy-hidari',
-        patternFile: 'pattern-hidari.patt',
+        patternFile: 'pattern-L.patt',
         position: new THREE.Vector3(this.gameOptions.model.hidari.x, this.gameOptions.model.hidari.y, this.gameOptions.model.hidari.z),
         rotation: new THREE.Euler(-90 * Math.PI / 180, 90 * Math.PI / 180, 0),
         color: new THREE.Color(0x000000),

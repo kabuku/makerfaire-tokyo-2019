@@ -98,7 +98,15 @@ const assetSources: AssetSources[] = [
   {type: 'image', id: 'batsu', url: '/assets/models/damage/batsu.png'},
   {type: 'image', id: 'namida', url: '/assets/models/damage/namida.png'},
   {type: 'image', id: 'onpu', url: '/assets/models/hit/onpu.png'},
-  {type: 'texture', id: 'smokeparticle', url: '/assets/models/spe/smokeparticle.png'}
+  {type: 'texture', id: 'smokeparticle', url: '/assets/models/spe/smokeparticle.png'},
+  {type: 'obj+mtl', id: 'tree1', path: '/assets/models/env/', obj: 'trees1.obj', mtl: 'trees1.mtl'},
+  {type: 'obj+mtl', id: 'tree2', path: '/assets/models/env/', obj: 'tree01.obj', mtl: 'tree01.mtl'},
+  {type: 'obj+mtl', id: 'tree3', path: '/assets/models/env/', obj: 'PUSHILIN_forest.obj', mtl: 'PUSHILIN_forest.mtl'},
+  {type: 'obj+mtl', id: 'tree4', path: '/assets/models/env/', obj: 'OakTree.obj', mtl: 'OakTree.mtl'},
+  {type: 'obj+mtl', id: 'mountain1', path: '/assets/models/env/', obj: 'Mountain_01.obj', mtl: 'Mountain_01.mtl'},
+  {type: 'obj+mtl', id: 'tree5', path: '/assets/models/env/', obj: 'model.obj', mtl: 'materials.mtl'},
+  {type: 'obj+mtl', id: 'tree6', path: '/assets/models/env/', obj: 'ElmTree.OBJ', mtl: 'ElmTree.mtl'},
+  {type: 'obj+mtl', id: 'tree7', path: '/assets/models/env/', obj: 'BubingaTree.obj', mtl: 'BubingaTree.mtl'},
 
 ];
 
