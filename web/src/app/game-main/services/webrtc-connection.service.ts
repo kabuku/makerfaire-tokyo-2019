@@ -4,7 +4,7 @@ import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 interface SignalingMessage {
   data?: string;
-  what: 'offer' | 'answer' | 'message' | 'call' | 'addIceCandidate' | 'iceCandidate' | 'iceCandidates';
+  what: 'offer' | 'answer' | 'message' | 'call' | 'addIceCandidate' | 'iceCandidate' | 'iceCandidates' | 'hangup';
   options?: any;
 }
 
@@ -16,6 +16,15 @@ export class WebrtcConnectionService {
   private ws: WebSocketSubject<SignalingMessage>;
 
   constructor() {
+  }
+
+  hangup() {
+    if (this.ws) {
+      this.ws.next({
+        what: 'hangup'
+      });
+      this.ws.complete();
+    }
   }
 
   connect(targetHost: string, signalingServerPath: string): Observable<MediaStream> {

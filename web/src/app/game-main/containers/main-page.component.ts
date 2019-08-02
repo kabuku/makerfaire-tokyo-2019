@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute, Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router} from '@angular/router';
 import {Observable, Subject} from 'rxjs';
@@ -113,6 +113,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.webrtc.hangup();
   }
 
   onChangeGameOptions(value: GameOptions) {
@@ -141,5 +142,14 @@ export class MainPageComponent implements OnInit, OnDestroy {
         setTimeout(() => this.connectWebrtc());
       }
     });
+  }
+
+  @HostListener('window:unload', [ '$event' ])
+  unloadHandler(event) {
+    this.webrtc.hangup();
+  }
+  @HostListener('window:beforeunload', [ '$event' ])
+  beforeUnloadHandler(event) {
+    this.webrtc.hangup();
   }
 }
