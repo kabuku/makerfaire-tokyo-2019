@@ -425,7 +425,7 @@ export class SceneComponent implements AfterViewInit {
       this.changeMyState.emit({status: 'attack', value: undefined});
       this.se.play('shot');
       const ray = new Raycaster(camera.position, new THREE.Vector3(0, 0, -1));
-      const intersections = ray.intersectObjects(this.hitTargets, false)
+      const intersections = ray.intersectObjects(this.hitTargets, true)
         .filter(i => i.object.parent && i.object.parent.visible && i.object.parent.parent.visible);
       console.log('intersections', intersections);
       const ex = new Explosion({direction: -1, position: new THREE.Vector3(0, 0, -10), fireTime: 2000});
@@ -439,7 +439,7 @@ export class SceneComponent implements AfterViewInit {
       }
       const intersectionObject = intersections[0];
 
-      if (intersectionObject.object.parent != null && intersectionObject.object.parent !== scene) {
+      if (intersectionObject.object.parent && intersectionObject.object.parent.name && (intersectionObject.object.parent.name.startsWith('enemy'))) {
         if (this.stats.start) {
           this.enemyState.hp -= 10;
         }
