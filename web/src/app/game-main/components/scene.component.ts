@@ -592,6 +592,8 @@ export class SceneComponent implements AfterViewInit {
           {model: this.assets.tree5, position: new THREE.Vector3(0, 1.7, 1), scale: 3, },
           {model: this.assets.tree5, position: new THREE.Vector3(-1, 1.7, 0), scale: 3, },
           {model: this.assets.tree5, position: new THREE.Vector3(1, 1.7, 0), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(2, 1.7, 1.6), scale: 3, },
+          {model: this.assets.tree5, position: new THREE.Vector3(-2, 1.7, 1.6), scale: 3, },
         ],
       },
       {
@@ -661,8 +663,7 @@ export class SceneComponent implements AfterViewInit {
         ],
       },
     ];
-
-    envMarkerOptions.forEach(em => {
+    envMarkerOptions.forEach((em, i) => {
       const markerRoot = new THREE.Group();
       markerRoot.name = em.name;
       const artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
@@ -673,10 +674,11 @@ export class SceneComponent implements AfterViewInit {
       em.models.forEach(model => {
         const m = model.model.clone();
         const g = new THREE.Group();
-        g.add(m);
         markerRoot.add(g);
+        g.add(m);
         m.position.copy(model.position);
         g.scale.set(model.scale, model.scale, model.scale);
+        g.rotateX(-90 * Math.PI / 180);
       });
       this.hitTargets.push(markerRoot);
     });

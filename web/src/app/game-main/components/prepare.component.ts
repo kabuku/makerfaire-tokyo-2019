@@ -131,10 +131,6 @@ export class PrepareComponent implements AfterViewInit {
 
   private calcBoundingBox(face) {
     const {x, y, width, height} = face.boundingBox;
-    // x = x + (width - width * 4 / 5) / 2;
-    // y = y + (height - height * 4 / 5) / 2;
-    // width = width * 4 / 5;
-    // height = height * 4 / 5;
     return {x, y, width, height};
   }
 
@@ -171,7 +167,7 @@ export class PrepareComponent implements AfterViewInit {
 
       const f2 = await this.faceDetector.detect(this.snapshotCanvas).catch(error => console.log(error));
 
-      if (!f2) {
+      if (!f2 || f2.length === 0) {
         requestAnimationFrame(take);
         return;
       }

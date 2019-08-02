@@ -57,6 +57,7 @@ export class WebrtcConnectionService {
     };
 
     if (this.ws && !this.ws.closed) {
+      this.hangup();
       this.ws.complete();
     }
 
@@ -83,6 +84,7 @@ export class WebrtcConnectionService {
           }
 
           if (sub) {
+            this.hangup();
             sub.complete();
           }
         }

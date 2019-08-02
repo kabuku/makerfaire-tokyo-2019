@@ -20,17 +20,15 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
   },
   machineName: 'dalailama',
   arSourceOptions: {
-    sourceType: 'image',
-    // signalingPath: 'wss://raspberrypi-dalailama.local:8080/stream/webrtc',
-    // hostPath: 'raspberrypi-dalailama.local',
-    sourceUrl: 'https://raspberrypi-dalailama.local:8080/stream/video.mjpeg',
+    sourceType: 'stream',
+    // sourceUrl: 'https://raspberrypi-dalailama.local:8080/stream/video.mjpeg',
     displayHeight: 480,
     displayWidth: 640,
     sourceHeight: 480,
-    sourceWidth: 640
+    sourceWidth: 640,
     // sourceType: 'stream',
-    // signalingPath: 'wss://raspberrypi-dalailama.local:8080/stream/webrtc',
-    // hostPath: 'raspberrypi-dalailama.local',
+    signalingPath: 'wss://raspberrypi-dalailama.local:8080/stream/webrtc',
+    hostPath: 'raspberrypi-dalailama.local',
     // displayHeight: 480,
     // displayWidth: 640,
     // sourceHeight: 240,
@@ -54,7 +52,7 @@ export class GameOptionsService {
     const gameOptionStr = localStorage.getItem(key);
 
     if (!gameOptionStr) {
-      return deepClone(DEFAULT_GAME_OPTIONS);
+      return this.makeDefault(robotName);
     }
 
     try {
@@ -62,13 +60,21 @@ export class GameOptionsService {
     } catch (e) {
       console.log(e);
       localStorage.removeItem(key);
-      return deepClone(DEFAULT_GAME_OPTIONS);
+      return this.makeDefault(robotName);
     }
   }
 
+  private makeDefault(robotName: string) {
+    const gameOption = deepClone(DEFAULT_GAME_OPTIONS);
+    if (gameOption.arSourceOptions.sourceType === 'stream') {
+      gameOption.arSourceOptions.signalingPath = `ws://raspberrypi-${robotName}.local:8080/stream/webrtc`;
+      gameOption.arSourceOptions.hostPath = `raspberrypi-${robotName}.local:8080`;
+    }
+    return gameOption;
+  }
+
   private getKeyName(robotName: string) {
-    const key = `${LOCAL_STORAGE_KEY_NAME}_${robotName}`;
-    return key;
+    return `${LOCAL_STORAGE_KEY_NAME}_${robotName}`;
   }
 
   set(robotName, value: GameOptions) {
