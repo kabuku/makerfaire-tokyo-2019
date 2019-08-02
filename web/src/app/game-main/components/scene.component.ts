@@ -360,7 +360,7 @@ export class SceneComponent implements AfterViewInit {
     });
 
     let rayTimer = 0;
-    this.onRenderFcts.push((delta, now) => {
+    this.onRenderFcts.push(delta => {
 
       rayTimer += delta;
       if (rayTimer < 0.3) {
