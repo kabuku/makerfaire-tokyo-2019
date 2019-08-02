@@ -1,3 +1,29 @@
+.statusBar {
+  position: absolute;
+  bottom: 30px;
+  height: 60px;
+  left: 5px;
+  right: 20px;
+
+  .hpBar {
+    background-color: #38ff00;
+    position: absolute;
+    top: 0;
+    height: 20px;
+    width: 100%;
+    padding-left: 10px;
+  }
+  .chargeBar {
+    position: absolute;
+    background-color: #fffe00;
+    height: 20px;
+    top: 22px;
+    width: 100%;
+    padding-left: 10px;
+    color: #2c2c2c;
+  }
+
+}
 .damage {
   animation: damage 0.1s ease-out 8;
 }

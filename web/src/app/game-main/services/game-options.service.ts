@@ -14,9 +14,9 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
     scale: 1.5625,
     // base 1, 2.08, 1.94
     mae: {x: 0, y: -baseVector.y / 2, z: 0},
-    ushiro: {x: -0.474, y: -0.544, z: 0.18},
+    migi: {x: -0.474, y: -0.544, z: 0.18},
     hidari: {x: 0.474, y: -0.544, z: 0.18},
-    migi: {x: 0, y: -baseVector.y / 2, z: 0.18},
+    ushiro: {x: 0, y: -baseVector.y / 2, z: 0.18},
   },
   machineName: 'dalailama',
   arSourceOptions: {
@@ -25,9 +25,9 @@ const DEFAULT_GAME_OPTIONS: GameOptions = {
     // hostPath: 'raspberrypi-dalailama.local',
     sourceUrl: 'https://raspberrypi-dalailama.local:8080/stream/video.mjpeg',
     displayHeight: 480,
-    // displayWidth: 640,
-    sourceHeight: 240,
-    sourceWidth: 320
+    displayWidth: 640,
+    sourceHeight: 480,
+    sourceWidth: 640
     // sourceType: 'stream',
     // signalingPath: 'wss://raspberrypi-dalailama.local:8080/stream/webrtc',
     // hostPath: 'raspberrypi-dalailama.local',

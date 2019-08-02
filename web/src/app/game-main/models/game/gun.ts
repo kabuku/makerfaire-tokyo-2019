@@ -56,16 +56,8 @@ export class Gun extends THREE.Group {
       this.add(gunBox);
     }
   }
-
-  private initFire(position: THREE.Vector3) {
-    this.fireGroup = new Explosion({
-      debug: this.options.debug,
-      position,
-      fireLightIntensity: this.options.gunFireLightIntensity,
-      fireTime: this.options.gunFireTime,
-      direction: this.options.direction
-    });
-    this.add(this.fireGroup);
+  public getChargeRate() {
+    return (this.options.chargeTime - this.chargeTime) / this.options.chargeTime;
   }
 
   public shot(): boolean {
@@ -112,6 +104,17 @@ export class Gun extends THREE.Group {
     const scale = this.gunReactionTime / this.options.gunReactionTime;
     this.rotation.set(this.originalRotation.x + this.options.direction * 10 * scale * Math.PI / 180, this.rotation.y, this.rotation.z);
 
+  }
+
+  private initFire(position: THREE.Vector3) {
+    this.fireGroup = new Explosion({
+      debug: this.options.debug,
+      position,
+      fireLightIntensity: this.options.gunFireLightIntensity,
+      fireTime: this.options.gunFireTime,
+      direction: this.options.direction
+    });
+    this.add(this.fireGroup);
   }
 
 }

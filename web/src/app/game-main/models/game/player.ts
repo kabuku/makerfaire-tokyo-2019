@@ -17,8 +17,16 @@ export class Player extends THREE.Group {
   private readonly gun: Gun;
   private readonly sight: THREE.Mesh;
   private hp: number;
+  private lockedon: boolean;
 
-  constructor(gun: THREE.Group, private assets: Assets, private camera: THREE.Camera, private options: Partial<PlayerOptions>) {
+  constructor(
+    gun: THREE.Group,
+    private assets: Assets,
+    private hpBar: HTMLDivElement,
+    private chargeBar: HTMLDivElement,
+    private camera: THREE.Camera,
+    private options: Partial<PlayerOptions>
+  ) {
     super();
     this.options = Object.assign({
       debug: false,
@@ -33,7 +41,7 @@ export class Player extends THREE.Group {
     this.gun.scale.set(0.2, 0.2, 0.2);
     this.add(this.gun);
     this.sight = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.05, 0.05),
+      new THREE.PlaneBufferGeometry(0.05, 0.05),
       new THREE.MeshBasicMaterial({map: this.assets.sight, side: THREE.DoubleSide, depthWrite: true, transparent: true})
     );
     this.sight.translateZ(-1);
@@ -42,9 +50,10 @@ export class Player extends THREE.Group {
 
   lockon() {
 
-    if ((this.sight.material as THREE.MeshBasicMaterial).map === this.assets.sightRed) {
+    if (this.lockedon) {
       return;
     }
+    this.lockedon = true;
     console.log('lockon');
     (this.sight.material as THREE.MeshBasicMaterial).map = this.assets.sightRed;
     (this.sight.material as THREE.MeshBasicMaterial).needsUpdate = true;
@@ -52,9 +61,10 @@ export class Player extends THREE.Group {
 
   lockoff() {
 
-    if ((this.sight.material as THREE.MeshBasicMaterial).map === this.assets.sight) {
+    if (!this.lockedon) {
       return;
     }
+    this.lockedon = false;
     console.log('lockoff');
     (this.sight.material as THREE.MeshBasicMaterial).map = this.assets.sight;
     (this.sight.material as THREE.MeshBasicMaterial).needsUpdate = true;
@@ -62,6 +72,12 @@ export class Player extends THREE.Group {
 
   update(delta, now) {
     this.gun.update(delta, now);
+    const chargeRate = this.gun.getChargeRate();
+    if (this.gun.getChargeRate() === 1) {
+      this.chargeBar.style.width = `${chargeRate * 100}%`;
+      return;
+    }
+    this.chargeBar.style.width = `${chargeRate * 100}%`;
   }
 
   shot(): boolean {
@@ -90,6 +106,15 @@ export class Player extends THREE.Group {
     }, 1000);
 
     const damageRate = hp / this.options.hitPoint;
+    this.hpBar.style.width = `${damageRate * 100}%`;
+
+    if (damageRate === 0.5) {
+      this.hpBar.style.backgroundColor = '#ffff00';
+    }
+    if (damageRate === 0.2) {
+      this.hpBar.style.backgroundColor = '#ff0000';
+    }
+
     if (damageRate === 0.8) {
       const glass = new THREE.Mesh(
         new THREE.PlaneGeometry(0.5, 0.5),

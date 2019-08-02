@@ -60,7 +60,7 @@ export class WebrtcConnectionService {
             what: 'call',
             options: {
               force_hw_vcodec: true,
-              vformat: 25,
+              vformat: 30,
               trickle_ice: true
             }
           });

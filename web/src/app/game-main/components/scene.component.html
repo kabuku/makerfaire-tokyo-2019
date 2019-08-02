@@ -1,2 +1,8 @@
-<div #root [ngClass]="{damage: stats && stats.damaging}">
+<div >
+  <div #root [ngClass]="{damage: stats && stats.damaging}"></div>
+  <div class="statusBar">
+    <div #hpBar class="hpBar">HP</div>
+    <div #chargeBar class="chargeBar">GUN ENERGY</div>
+  </div>
 </div>
+

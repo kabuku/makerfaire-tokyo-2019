@@ -133,6 +133,12 @@ export class SceneComponent implements AfterViewInit {
   @ViewChild('root', {static: false})
   private rootDiv: ElementRef;
 
+  @ViewChild('chargeBar', {static: false})
+  private chargeBarDiv: ElementRef;
+
+  @ViewChild('hpBar', {static: false})
+  private hpBarDiv: ElementRef;
+
   private hitTargets: THREE.Object3D[] = [];
 
   private explosions: Explosion[] = [];
@@ -331,7 +337,14 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private setupPlayer(scene: THREE.Scene, renderer: THREE.Renderer, camera: THREE.Camera): Player {
-    const player = new Player(this.assets.gun, this.assets, camera, {debug: this.gameOptions.debug});
+    const player = new Player(
+      this.assets.gun,
+      this.assets,
+      this.hpBarDiv.nativeElement,
+      this.chargeBarDiv.nativeElement,
+      camera,
+      {debug: this.gameOptions.debug}
+      );
     this.player = player;
     scene.add(player);
     renderer.domElement.addEventListener('click', () => {
@@ -368,19 +381,19 @@ export class SceneComponent implements AfterViewInit {
       }
       rayTimer = 0;
       const ray = new Raycaster(camera.position, new THREE.Vector3(0, 0, -1));
-      const intersections = ray.intersectObjects(this.hitTargets.filter(target => !!target.parent.name), false);
+      const intersections = ray.intersectObjects(
+        this.hitTargets, false
+      ).filter(i => i.object.parent && i.object.parent.visible && i.object.parent.parent.visible);
       if (intersections.length === 0) {
         console.log('no lockon object');
         this.player.lockoff();
         return;
       }
+
       const parent = intersections[0].object.parent;
-      if (!!parent.name && parent.name.startsWith('enemy') && parent.parent.visible
-      ) {
-        console.log('lockOn');
+      if (!!parent.name && parent.name.startsWith('enemy') && parent.parent.visible) {
         this.player.lockon();
       } else {
-        console.log('lockoff', parent.name,  parent.parent.visible);
         this.player.lockoff();
       }
     });
@@ -398,7 +411,8 @@ export class SceneComponent implements AfterViewInit {
       this.changeMyState.emit({status: 'attack', value: undefined});
       this.se.play('shot');
       const ray = new Raycaster(camera.position, new THREE.Vector3(0, 0, -1));
-      const intersections = ray.intersectObjects(this.hitTargets, false);
+      const intersections = ray.intersectObjects(this.hitTargets, false)
+        .filter(i => i.object.parent && i.object.parent.visible && i.object.parent.parent.visible);
       console.log('intersections', intersections);
       const ex = new Explosion({direction: -1, position: new THREE.Vector3(0, 0, -10), fireTime: 2000});
       ex.name = 'explosion';
@@ -410,13 +424,6 @@ export class SceneComponent implements AfterViewInit {
         return;
       }
       const intersectionObject = intersections[0];
-      if (intersectionObject.distance === 0) {
-        console.log('not damage');
-        // 遠いところに適当に爆発
-        scene.add(ex);
-        this.explosions.push(ex);
-        return;
-      }
 
       if (intersectionObject.object.parent != null && intersectionObject.object.parent !== scene) {
         if (this.stats.start) {
