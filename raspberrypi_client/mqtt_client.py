@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from enum import Enum
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
+import pigpio
 import signal
 import paho.mqtt.client as mqtt
 import logging
@@ -9,8 +10,10 @@ import setting
 from concurrent.futures.thread import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
-GPIO.setmode(GPIO.BCM)
+# GPIO.setmode(GPIO.BCM)
 executor = ThreadPoolExecutor()
+
+pi = pigpio.pi()
 
 
 class Wheel(Enum):
@@ -22,30 +25,37 @@ class Servo(object):
 
     def __init__(self, gpio_number):
         self.gpio_number = gpio_number
-        GPIO.setup(gpio_number, GPIO.OUT)
-        self.servo = GPIO.PWM(gpio_number, 50)
-        self.servo.start(0)
+        # GPIO.setup(gpio_number, GPIO.OUT)
+        # self.servo = GPIO.PWM(gpio_number, 50)
+        pi.set_mode(gpio_number, pigpio.OUTPUT)
+        # self.servo.start(0)
         self.exit = threading.Event()
 
     def run(self, dudy_cycle):
-        dudy_cycle = float(dudy_cycle)
-
-        self.servo.ChangeDutyCycle(dudy_cycle)
+        try:
+            dudy_cycle = float(dudy_cycle) * 10000
+            logger.info(dudy_cycle)
+            pi.hardware_PWM(self.gpio_number, 50, dudy_cycle)
+            # dudy_cycle = float(dudy_cycle)
+        except Exception as e:
+            logger.error(e)
+        #
+        # self.servo.ChangeDutyCycle(dudy_cycle)
 
     def __del__(self):
-        self.servo.stop()
+        pi.set_mode(self.gpio_number, pigpio.INPUT)
 
 
-class Led(object):
-
-    def __init__(self, pin_number):
-        self.pin_number = pin_number
-        GPIO.setup(pin_number, GPIO.OUT)
-        # The default is True and the LED glows, so it set False
-        GPIO.output(pin_number, False)
-
-    def output(self, on):
-        GPIO.output(self.pin_number, on)
+# class Led(object):
+#
+#     def __init__(self, pin_number):
+#         self.pin_number = pin_number
+#         GPIO.setup(pin_number, GPIO.OUT)
+#         # The default is True and the LED glows, so it set False
+#         GPIO.output(pin_number, False)
+#
+#     def output(self, on):
+#         GPIO.output(self.pin_number, on)
 
 
 class MQTTClient(object):
@@ -56,11 +66,11 @@ class MQTTClient(object):
         self.client.on_message = self.on_message
         # self.client.on_disconnect = self.on_disconnect
         self.robot_name = robot_name
-        self.right_servo = Servo(gpio_number=17)
-        self.left_servo = Servo(gpio_number=27)
+        self.right_servo = Servo(gpio_number=12)
+        self.left_servo = Servo(gpio_number=13)
         # setup GPIO for LED
-        self.led_connect = Led(9)
-        self.led_message = Led(11)
+        # self.led_connect = Led(9)
+        # self.led_message = Led(11)
         self.server_hosts = server_hosts
 
     def connect(self):
@@ -87,10 +97,11 @@ class MQTTClient(object):
 
     def on_connect(self, client, userdata, flags, rc):
         logger.info("Connected with result code " + str(rc))
-        self.led_connect.output(True)
+        # self.led_connect.output(True)
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
-        client.subscribe("{}/servos".format(self.robot_name), qos=0)
+        servos_topic = "{}/servos".format(self.robot_name)
+        client.subscribe(servos_topic, qos=0)
         client.publish("{}/connection".format(self.robot_name), payload=1, qos=1, retain=True)
 
     # The callback for when a PUBLISH message is received from the server.
@@ -111,7 +122,8 @@ class MQTTClient(object):
         self.left_servo.exit.set()
         self.left_servo.__del__()
         self.right_servo.__del__()
-        GPIO.cleanup()
+        pi.stop()
+        # GPIO.cleanup()
         logger.info("exit")
 
 

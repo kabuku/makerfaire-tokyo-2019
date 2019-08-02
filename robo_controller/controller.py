@@ -69,7 +69,8 @@ class JCU3712FBKController(object):
         self.left_servo = Servo(duty_cycle_max=left_max, duty_cycle_min=left_min)
         self.right_servo = Servo(duty_cycle_max=right_max, duty_cycle_min=right_min)
         self.client = client
-        self.d = 3
+        self.adjustment = 0.1
+        print("left: {}, right: {}".format(self.left_servo, self.right_servo))
 
     def listen(self):
 
@@ -84,17 +85,21 @@ class JCU3712FBKController(object):
                             self.client.publish_command("shot")
 
                         if event.button == 4:
-                            self.left_servo.duty_cycle_min += 0.2
+                            self.left_servo.duty_cycle_min -= self.adjustment
+                            self.left_servo.duty_cycle_max += self.adjustment
                             print("left {}".format(self.left_servo))
                         elif event.button == 6:
-                            self.left_servo.duty_cycle_max += 0.2
+                            self.left_servo.duty_cycle_min += self.adjustment
+                            self.left_servo.duty_cycle_max -= self.adjustment
                             print("left {}".format(self.left_servo))
 
                         elif event.button == 5:
-                            self.right_servo.duty_cycle_max -= 0.2
+                            self.right_servo.duty_cycle_min -= self.adjustment
+                            self.right_servo.duty_cycle_max += self.adjustment
                             print("right {}", self.right_servo)
                         elif event.button == 7:
-                            self.right_servo.duty_cycle_min += 0.2
+                            self.right_servo.duty_cycle_min += self.adjustment
+                            self.right_servo.duty_cycle_max -= self.adjustment
                             print("right {}", self.right_servo)
 
                     if event.type == pygame.JOYAXISMOTION:
@@ -111,10 +116,10 @@ class JCU3712FBKController(object):
                         # previous_payload = self.client.publish_servo(left=0, right=0, previous_payload=previous_payload)
                     elif self.axis_data.get(0) == 1:
                         # 右旋回
-                        previous_payload = self.client.publish_servo(left=self.left_servo.duty_cycle_max, right=0, previous_payload=previous_payload)
+                        previous_payload = self.client.publish_servo(left=9, right=0, previous_payload=previous_payload)
                     elif self.axis_data.get(0) == -1:
                         # 左旋回
-                        previous_payload = self.client.publish_servo(left=0, right=self.right_servo.duty_cycle_min, previous_payload=previous_payload)
+                        previous_payload = self.client.publish_servo(left=0, right=5, previous_payload=previous_payload)
 
                     else:
                         previous_payload = self.client.publish_servo(left=0.1, right=0.1, previous_payload=previous_payload)
