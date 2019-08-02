@@ -160,7 +160,12 @@ export class SceneComponent implements AfterViewInit {
 
   private startStartCountdown() {
 
-    const startCountdown = new SpriteText2D('5', {align: textAlign.center, font: '50px PixelMPlus', fillStyle: '#000000', antialias: true});
+    const startCountdown = new SpriteText2D('5', {
+      align: textAlign.center,
+      font: '50px PixelMPlus',
+      fillStyle: '#000000',
+      antialias: true
+    });
     this.se.play('te');
     startCountdown.translateZ(-0.1);
     this.scene.add(startCountdown);
@@ -190,7 +195,7 @@ export class SceneComponent implements AfterViewInit {
       const newText = dt >= START_COUNTDOWN_SEC ? '開始' : `${START_COUNTDOWN_SEC - dt}`;
 
       if (startCountdown.text !== newText) {
-        if ( newText !== '開始' ) {
+        if (newText !== '開始') {
           this.se.play('te');
         } else {
           this.se.play('gameStart');
@@ -201,7 +206,12 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private startGameTimer() {
-    const countdown = new SpriteText2D('60', {align: textAlign.center, font: '50px PixelMPlus', fillStyle: '#000000', antialias: true});
+    const countdown = new SpriteText2D('60', {
+      align: textAlign.center,
+      font: '50px PixelMPlus',
+      fillStyle: '#000000',
+      antialias: true
+    });
     countdown.translateY(0.031);
     countdown.translateZ(-0.1);
     countdown.scale.set(0.0002, 0.0002, 0.0002);
@@ -321,7 +331,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private setupPlayer(scene: THREE.Scene, renderer: THREE.Renderer, camera: THREE.Camera): Player {
-    const player = new Player(this.assets.gun, this.assets.sight, camera, {debug: this.gameOptions.debug});
+    const player = new Player(this.assets.gun, this.assets, camera, {debug: this.gameOptions.debug});
     this.player = player;
     scene.add(player);
     renderer.domElement.addEventListener('click', () => {
@@ -340,11 +350,38 @@ export class SceneComponent implements AfterViewInit {
         return;
       }
       this.se.play('damage');
+      this.enemies.forEach(enemy => enemy.hit());
       this.stats.damage = false;
       this.stats.damaging = true;
       lastDamageTime = now;
       if (this.stats.start) {
         player.damage(now, this.myState.hp);
+      }
+    });
+
+    let rayTimer = 0;
+    this.onRenderFcts.push((delta, now) => {
+
+      rayTimer += delta;
+      if (rayTimer < 0.3) {
+        return;
+      }
+      rayTimer = 0;
+      const ray = new Raycaster(camera.position, new THREE.Vector3(0, 0, -1));
+      const intersections = ray.intersectObjects(this.hitTargets.filter(target => !!target.parent.name), false);
+      if (intersections.length === 0) {
+        console.log('no lockon object');
+        this.player.lockoff();
+        return;
+      }
+      const parent = intersections[0].object.parent;
+      if (!!parent.name && parent.name.startsWith('enemy') && parent.parent.visible
+      ) {
+        console.log('lockOn');
+        this.player.lockon();
+      } else {
+        console.log('lockoff', parent.name,  parent.parent.visible);
+        this.player.lockoff();
       }
     });
 
@@ -361,7 +398,7 @@ export class SceneComponent implements AfterViewInit {
       this.changeMyState.emit({status: 'attack', value: undefined});
       this.se.play('shot');
       const ray = new Raycaster(camera.position, new THREE.Vector3(0, 0, -1));
-      const intersections = ray.intersectObjects(this.hitTargets, true);
+      const intersections = ray.intersectObjects(this.hitTargets, false);
       console.log('intersections', intersections);
       const ex = new Explosion({direction: -1, position: new THREE.Vector3(0, 0, -10), fireTime: 2000});
       ex.name = 'explosion';
@@ -479,19 +516,17 @@ export class SceneComponent implements AfterViewInit {
     const ambientLight = new THREE.HemisphereLight(0xcccccc, 1);
     scene.add(ambientLight);
 
-    let debugCamera;
+    const debugCamera = new THREE.PerspectiveCamera();
+    debugCamera.lookAt(new THREE.Vector3(0, 0, 0));
+    debugCamera.position.set(0, 5, -10);
     if (this.gameOptions.debug) {
       scene.add(new CameraHelper(camera));
-      debugCamera = new THREE.PerspectiveCamera();
-      debugCamera.lookAt(new THREE.Vector3(0, 0, 0));
-      debugCamera.position.set(0, 5, -10);
       scene.add(new AxesHelper());
       new OrbitControls(debugCamera, renderer2.domElement);
-      // for debug by chrome extension
-      window.scene = scene;
-      window.THREE = THREE;
     }
-
+    // for debug by chrome extension
+    window.scene = scene;
+    window.THREE = THREE;
     return {scene, debugCamera, camera};
   }
 
@@ -566,14 +601,18 @@ export class SceneComponent implements AfterViewInit {
         type: 'pattern',
         patternUrl: `/assets/marker/${em.patternFile}`
       });
-      const enemy = new Enemy(this.assets.gun2, this.enemyState, this.assets, {debug: this.gameOptions.debug, color: em.color});
+      const enemy = new Enemy(this.assets.gun2, this.enemyState, this.assets, {
+        debug: this.gameOptions.debug,
+        color: em.color
+      });
+      enemy.name = 'enemy';
       enemy.position.set(em.position.x * scale, em.position.y * scale, em.position.z * scale);
       enemy.rotation.copy(em.rotation);
       enemy.scale.set(scale, scale, scale);
       markerRoot.add(enemy);
       this.onRenderFcts.push(enemy.update);
       this.enemies.push(enemy);
-      this.hitTargets.push(markerRoot);
+      this.hitTargets.push(enemy.hitMesh);
       this.enemyMarkerRoots.push(markerRoot);
     });
 

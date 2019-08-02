@@ -3,9 +3,7 @@ export interface Assets {
   gun2: THREE.Group;
   flare: THREE.Texture;
   sight: THREE.Texture;
-  glass1: THREE.Texture;
-  glass2: THREE.Texture;
-  glass3: THREE.Texture;
+  sightRed: THREE.Texture;
   smokeparticle: THREE.Texture;
 
   // sounds
@@ -18,9 +16,16 @@ export interface Assets {
   damageSound: AudioBuffer;
   shotSound: AudioBuffer;
 
+  // hit
+  onpu: HTMLImageElement;
+
   // damage
   namida: HTMLImageElement;
   bansoukou: HTMLImageElement;
+  batsu: HTMLImageElement;
+  glass1: THREE.Texture;
+  glass2: THREE.Texture;
+  glass3: THREE.Texture;
 
 }
 

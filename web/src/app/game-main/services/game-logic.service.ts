@@ -124,7 +124,7 @@ export class GameLogicService {
     } else if (topic === `${this.enemyState.robotName}/status`) {
       this.processUpdatePlayerStatus(val, this.enemyState, this.timeEnemyStateSubject);
     }
-  }
+  };
 
   async init({mqttBrokerHost, myRobotName, enemyRobotName}): Promise<Client> {
     this.myState.robotName = myRobotName;

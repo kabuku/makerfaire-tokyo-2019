@@ -28,7 +28,7 @@ export class Enemy extends THREE.Group {
   private faceMaterial: THREE.MeshBasicMaterial;
   private body: THREE.Mesh;
   private faceImage: HTMLImageElement;
-  private speGroups: SPE.Group[] = [];
+  private smokeGroup: SPE.Group;
 
   constructor(gun: THREE.Group, private state: PlayerState, private assets: Assets, options?: Partial<EnemyOptions>) {
     super();
@@ -51,12 +51,58 @@ export class Enemy extends THREE.Group {
     this.add(this.hitMesh);
   }
 
-  public shot() {
+  shot() {
     this.gun.shot();
   }
 
+  update = (delta: number, now: number) => {
+    this.gun.update(delta, now);
+    if (this.smokeGroup) {
+      this.smokeGroup.tick();
+    }
+  };
+
+  hit() {
+    const damageRate = this.hp / this.options.hitPoint;
+    this.drawFace(damageRate);
+    this.onpu();
+    this.faceMaterial.map.needsUpdate = true;
+    setTimeout(() => this.drawFace(damageRate), 2000);
+  }
+
+  damage(hp: number) {
+    this.hp = hp;
+    const damageRate = this.hp / this.options.hitPoint;
+
+    this.drawFace(damageRate);
+    this.drawDamageEye();
+    setTimeout(() => this.drawFace(damageRate), 2000);
+
+    this.faceMaterial.map.needsUpdate = true;
+
+    if (damageRate === 0.8) {
+      this.addSmoke(10);
+    } else if (damageRate === 0.5) {
+      this.addSmoke(30, 2);
+    } else if (damageRate === 0.2) {
+      this.addSmoke(50, 2);
+    } else if (damageRate === 0.1) {
+      this.addSmoke(80, 2);
+    }
+  }
+
+  endGame(result: BattleResult) {
+    if (result === 'win') {
+      this.win();
+    } else if (result === 'draw') {
+      this.draw();
+    } else {
+      this.lose();
+    }
+  }
+
   private createBody(state: PlayerState): THREE.Mesh {
-    const bodyMat = new THREE.MeshBasicMaterial({color: this.options.color, transparent: true, opacity: 0.1});
+    const bodyMat = new THREE.MeshBasicMaterial({color: this.options.color, transparent: true, opacity: 0.5});
     const {canvas, face} = this.createFace(state);
     const materials = [
       bodyMat,
@@ -91,13 +137,24 @@ export class Enemy extends THREE.Group {
     };
   }
 
-  drawFace() {
+  private drawFace(damageRate = 1.0) {
     const ctx = this.faceCanvas.getContext('2d');
     const {x, y, width, height} = this.calcBoundingBox(this.state.face);
     console.log('face', x, y, width, height);
     this.faceCanvas.height = height;
     this.faceCanvas.width = width;
     ctx.drawImage(this.faceImage, x, y, width, height, 0, 0, width, height);
+
+    if (damageRate <= 0.8) {
+      const p = this.calcLandmarkPosition(this.state.face, this.state.eyes[0]);
+      ctx.drawImage(this.assets.bansoukou, 0, p.y + 10, width / 4, height / 4);
+    }
+
+    if (damageRate <= 0.4) {
+      const p = this.calcLandmarkPosition(this.state.face, this.state.eyes[1]);
+      ctx.drawImage(this.assets.bansoukou, p.x - 5, height - height / 4 - 20, width / 4, height / 4);
+    }
+
     this.faceMaterial.map.needsUpdate = true;
   }
 
@@ -118,42 +175,40 @@ export class Enemy extends THREE.Group {
     return {x: lx, y: ly};
   }
 
-
-  update = (delta: number, now: number) => {
-    this.gun.update(delta, now);
-    this.speGroups.forEach(group => group.tick());
+  private drawDamageEye() {
+    const ctx = this.faceCanvas.getContext('2d');
+    const choose = Math.random();
+    if (choose < 0.5) {
+      this.cry(ctx);
+    } else {
+      this.batsu(ctx);
+    }
   }
 
-  damage(hp: number) {
-    this.hp = hp;
-    const damageRate = hp / this.options.hitPoint;
-
-    this.drawFace();
-    const ctx = this.faceCanvas.getContext('2d');
-    // tslint:disable-next-line:max-line-length
+  private cry(ctx) {
     this.state.eyes
       .map(eye => this.calcLandmarkPosition(this.state.face, eye))
-      .forEach(
-        p => ctx.drawImage(
-          this.assets.namida,
-          p.x - this.assets.namida.width / 4 / 2,
-          p.y + this.state.face.height / 4 / 2,
-          this.assets.namida.width / 4,
-          this.assets.namida.height / 4)
+      .forEach(p =>
+            ctx.drawImage(
+              this.assets.namida,
+              p.x - this.assets.namida.width / 4 / 2,
+              p.y + this.state.face.height / 4 / 2,
+              this.assets.namida.width / 4,
+              this.assets.namida.height / 4)
       );
-    setTimeout(() => this.drawFace(), 2000);
+  }
 
-    this.faceMaterial.map.needsUpdate = true;
-
-    if (0.5 < damageRate && damageRate <= 0.8) {
-      this.addSmoke(50);
-    } else if (0.5 < damageRate && damageRate <= 0.5) {
-      this.addSmoke(80, 2);
-    } else if (0.1 < damageRate && damageRate <= 0.2) {
-      this.addSmoke(100, 2);
-    } else if (damageRate <= 0.1) {
-      this.addSmoke(150, 2);
-    }
+  private batsu(ctx) {
+    this.state.eyes
+      .map(eye => this.calcLandmarkPosition(this.state.face, eye))
+      .forEach(p =>
+        ctx.drawImage(
+          this.assets.batsu,
+          p.x - this.assets.batsu.width / 4 / 2,
+          p.y - this.state.face.height / 4 / 2,
+          this.assets.batsu.width / 4,
+          this.assets.batsu.height / 4)
+      );
   }
 
   private getRandomBodyFacePosition() {
@@ -176,15 +231,16 @@ export class Enemy extends THREE.Group {
   }
 
   private addSmoke(particleCount = 50, count = 1) {
-    const smokeGroup = new SPE.Group({
-      texture: {
-        value: this.assets.smokeparticle,
-      },
-      depthTest: false,
-      depthWrite: true,
-      blending: THREE.NormalBlending,
-    });
-
+    if (!this.smokeGroup) {
+      this.smokeGroup = new SPE.Group({
+        texture: {
+          value: this.assets.smokeparticle,
+        },
+        depthTest: false,
+        depthWrite: true,
+        blending: THREE.NormalBlending,
+      });
+    }
     for (let i = 0; i < count; i++) {
       const smoke = new SPE.Emitter({
         maxAge: {value: 3},
@@ -217,21 +273,9 @@ export class Enemy extends THREE.Group {
         },
         particleCount,
       });
-      smokeGroup.addEmitter(smoke);
+      this.smokeGroup.addEmitter(smoke);
     }
-
-    this.speGroups.push(smokeGroup);
-    this.add(smokeGroup.mesh);
-  }
-
-  endGame(result: BattleResult) {
-    if (result === 'win') {
-      this.win();
-    } else if (result === 'draw') {
-      this.draw();
-    } else {
-      this.lose();
-    }
+    this.add(this.smokeGroup.mesh);
   }
 
   private draw() {
@@ -239,11 +283,20 @@ export class Enemy extends THREE.Group {
   }
 
   private lose() {
-
+    this.drawFace(0);
+    this.batsu(this.faceCanvas.getContext('2d'));
   }
 
   private win() {
-
+    this.drawFace(1);
+    this.onpu();
   }
 
+  private onpu() {
+    const p = this.calcLandmarkPosition(this.state.face, this.state.mouse);
+    const ctx = this.faceCanvas.getContext('2d');
+    const width = this.assets.onpu.width / 3;
+    const height = this.assets.onpu.height / 3;
+    ctx.drawImage(this.assets.onpu, p.x + width, p.y - height, width, height);
+  }
 }
