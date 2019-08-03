@@ -1,8 +1,8 @@
 [Unit]
-Description = mqtt client for makerfairetokyo 2018
+Description = mqtt client for makerfairetokyo 2019
 
 [Service]
-ExecStart = /home/pi/makerFaireTokyo2018/mqtt_client.py
+ExecStart = /home/pi/raspberrypi_client/mqtt_client.py
 Restart = always
 Type = simple
 
