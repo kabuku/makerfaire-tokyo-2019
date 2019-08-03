@@ -1,14 +1,24 @@
 <div fxLayout="column"  fxLayoutAlign="space-between center" fxLayoutGap="16px">
+  <div fxLayout="row" fxLayoutAlign="end end">
+    <mat-form-field>
+    <mat-select (selectionChange)="showVideo($event.value)" [(ngModel)]="device">
+      <mat-option *ngFor="let d of devices" [value]="d">{{d.label}}({{d.deviceId}})</mat-option>
+    </mat-select>
+    </mat-form-field>
+  </div>
   <div fxLayout="row" fxLayoutAlign="space-between center" class="videoContainer"  fxLayoutGap="8px">
     <video class="video" #video autoplay playsinline></video>
     <canvas class="videoCanvas" #videoCanvas></canvas>
-    <canvas class="snapshotCanvas" #snapshotCanvas></canvas>
+    <canvas class="snapshotCanvas" [hidden]="!captureData || !face" #snapshotCanvas></canvas>
+  </div>
+  <div>
+    白枠内に顔を入れ顔枠が緑色になったら(4)ボタンを押して下さい。
   </div>
   <div fxLayout="row" fxLayoutAlign="space-between center"  fxLayoutGap="8px">
-    <button mat-button *ngIf="myState.status !== 'prepared'" (click)="takePhoto()">写真をとる</button>
-    <button mat-button color="primary" *ngIf="captureData && face && myState.status === 'prepare'" [disabled]="finished" (click)="finishPrepared()">
-      準備完了<mat-icon *ngIf="finished"><mat-spinner diameter="20"></mat-spinner></mat-icon>
+    <button mat-flat-button *ngIf="myState.status !== 'prepared'" (click)="takePhoto()">写真をとる(4)</button>
+    <button mat-flat-button color="primary" *ngIf="captureData && face && myState.status === 'prepare'" [disabled]="finished" (click)="finishPrepared()">
+      準備完了(12)<mat-icon *ngIf="finished"><mat-spinner diameter="20"></mat-spinner></mat-icon>
     </button>
-    <button mat-button *ngIf="myState.status === 'prepared'" (click)="cancel()">撮り直し</button>
+    <button mat-flat-button *ngIf="myState.status === 'prepared'" (click)="cancel()">撮り直し(3)</button>
   </div>
 </div>

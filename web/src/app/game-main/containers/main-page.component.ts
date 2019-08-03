@@ -1,4 +1,4 @@
-import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Store} from '@ngrx/store';
 import {ActivatedRoute, Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router} from '@angular/router';
 import {Observable, Subject} from 'rxjs';
@@ -24,12 +24,16 @@ import {WebrtcConnectionService} from '../services/webrtc-connection.service';
               [enemyState]="enemyState$ | async"
               [gameOptions]="gameOptions"
               [videoIndex]="videoIndex"
-
+              [button$]="button$"
               (gameOptionsChange)="onChangeGameOptions($event)"
               (updateGameStatus)="gameLogic.updateGameStatus($event)"
               (updateMyStatus)="gameLogic.updatePlayerState($event)"
               (updateEnemyStatus)="gameLogic.updateEnemyState($event)"
       ></at-main>
+      <div [ngClass]="{visible: gameOptions.debug || (gameState$ | async)?.status === 'wait'}">
+          <video #debugVideo></video>
+      </div>
+    
   `,
   styles: []
 })
@@ -40,10 +44,21 @@ export class MainPageComponent implements OnInit, OnDestroy {
   public gameState$: Observable<GameState>;
   public myState$: Observable<PlayerState>;
   public enemyState$: Observable<PlayerState>;
-  private routerEventSubject = new Subject();
+  public button$: Observable<string>;
 
-  @ViewChild(MainComponent, {static: false}) mainComponentRef: MainComponent;
+  @ViewChild(MainComponent, {static: false})
+  public mainComponentRef: MainComponent;
+
+  @ViewChild('debugVideo', {static: false})
+  private debugVideoRef: ElementRef;
+
+  get debugVideo(): HTMLVideoElement {
+    return this.debugVideoRef.nativeElement;
+  }
+
   public videoIndex: number;
+
+  private routerEventSubject = new Subject();
   private myRobotName: string;
 
   constructor(
@@ -95,6 +110,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     }));
     this.myState$ = this.gameLogic.myState$;
     this.enemyState$ = this.gameLogic.enemyState$;
+    this.button$ = this.gameLogic.button$;
   }
 
   ngOnInit() {
@@ -135,6 +151,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.webrtc.connect(hostPath, signalingPath).subscribe(stream => {
       if (this.gameOptions.arSourceOptions.sourceType === 'stream' && stream) {
         this.gameOptions.arSourceOptions.stream = stream;
+        this.debugVideo.srcObject = stream;
+        this.debugVideo.play();
       }
     }, error => {
       console.log(error);

@@ -56,6 +56,9 @@ class MQTTClient(mqtt.Client):
         self.publish("{}/command".format(self.robot_name), command, qos=0)
         print(command)
 
+    def publish_controller_button(self, button):
+        from datetime import datetime
+        self.publish("{}/controller/button".format(self.robot_name), "{},{}".format(datetime.now().isoformat(), button), qos=0)
 
 class JCU3712FBKController(object):
 
@@ -81,6 +84,7 @@ class JCU3712FBKController(object):
                 for event in pygame.event.get():
                     if event.type == pygame.JOYBUTTONDOWN:
                         # print(event.button)
+                        self.client.publish_controller_button(event.button)
                         if event.button == 3:
                             self.client.publish_command("shot")
 
@@ -101,7 +105,6 @@ class JCU3712FBKController(object):
                             self.right_servo.duty_cycle_min += self.adjustment
                             self.right_servo.duty_cycle_max -= self.adjustment
                             print("right {}", self.right_servo)
-
                     if event.type == pygame.JOYAXISMOTION:
                         self.axis_data[event.axis] = round(event.value)
 

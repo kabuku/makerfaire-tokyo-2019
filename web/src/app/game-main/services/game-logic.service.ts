@@ -5,6 +5,8 @@ import {map, pairwise, startWith} from 'rxjs/operators';
 import deepClone from '../../util/deep-clone';
 import {Client, connect} from 'mqtt';
 import {GameState, GameStatus} from '../models/game-state';
+import {SoundEngineService} from './sound-engine.service';
+import {WebrtcConnectionService} from "./webrtc-connection.service";
 
 type TimePlayerState = [number, PlayerState];
 type TimeGameState = [number, GameState];
@@ -111,6 +113,8 @@ export class GameLogicService {
     }),
   );
 
+  button$ = new Subject<string>();
+
   handleMQTTMessage = (topic: string, payload: Buffer) => {
     const val = payload.toString();
     console.log('handle mqtt message', topic, val);
@@ -123,8 +127,26 @@ export class GameLogicService {
       this.processUpdatePlayerStatus(val, this.myState, this.timeMyStateSubject);
     } else if (topic === `${this.enemyState.robotName}/status`) {
       this.processUpdatePlayerStatus(val, this.enemyState, this.timeEnemyStateSubject);
+    } else if (topic === `${this.myState.robotName}/controller/button`) {
+      const [, button] = val.split(',');
+      this.button$.next(button);
+
+      if (button === '3' || button === '11' ) {
+        if (this.gameState.status === 'wait') {
+          this.updateGameStatus('prepare');
+        } else if (this.gameState.status === 'prepare'
+          && this.myState.status === 'prepared'
+          && this.enemyState.status === 'prepared'
+        ) {
+          this.updateGameStatus('prepared');
+        } else if (button === '11' && this.gameState.status === 'prepared') {
+          this.updateGameStatus('start');
+        }
+      } else if (button === '8') {
+        this.webrtc.hangup();
+      }
     }
-  };
+  }
 
   async init({mqttBrokerHost, myRobotName, enemyRobotName}): Promise<Client> {
     this.myState.robotName = myRobotName;
@@ -140,13 +162,17 @@ export class GameLogicService {
       this.mqttClient.subscribe('robot-name');
       this.mqttClient.subscribe(`${myRobotName}/status`);
       this.mqttClient.subscribe(`${enemyRobotName}/status`);
+      this.mqttClient.subscribe(`${myRobotName}/controller/button`);
       this.mqttClient.on('message', this.handleMQTTMessage);
       resolve(this.mqttClient);
     }).on('error', err => reject(err)));
   }
 
-
   updateGameStatus(status: GameStatus) {
+
+    if (status === 'prepare') {
+      this.se.play('select', 0, 0.35);
+    }
 
     this.mqttClient.publish('game/status', `${new Date().toISOString()},${status}`);
   }
@@ -181,8 +207,18 @@ export class GameLogicService {
     const value = val.join(',');
     const time = new Date(dateStr).getTime();
     newState.status = playerStatus;
+
+    if (!['prepared', 'start', 'end'].includes(this.gameState.status)
+      && ['shot', 'hit', 'win', 'lose', 'draw', 'attack'].includes(playerStatus)) {
+      return;
+    }
+
     if (playerStatus === 'prepare') {
       newState.image = undefined;
+      newState.hp = 100;
+      newState.face = undefined;
+      newState.mouse = undefined;
+      newState.eyes = undefined;
     } else if (playerStatus === 'prepared') {
 
       const [x, y, width, height, eye1X, eye1Y, eye2X, eye2Y, mouseX, mouseY, ...image] = value.split(',');
@@ -198,7 +234,7 @@ export class GameLogicService {
   }
 
 
-  constructor() {
+  constructor(private se: SoundEngineService, private webrtc: WebrtcConnectionService) {
     this.myState$.subscribe(myState => this.myState = myState);
     this.enemyState$.subscribe(enemyState => this.enemyState = enemyState);
   }

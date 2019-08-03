@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {Assets} from '../models/assets';
 import {GameOptions} from '../models/game-options';
 import {SceneComponent} from './scene.component';
@@ -9,14 +9,15 @@ import {UpdatePlayerStateParams} from '../services/game-logic.service';
 import {GameState, GameStatus} from '../models/game-state';
 import {SoundEngineService} from '../services/sound-engine.service';
 import {demoFaceImage} from '../../demo';
+import {Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
   selector: 'at-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss']
 })
-export class MainComponent implements OnInit {
-
+export class MainComponent implements OnInit, OnDestroy {
   @ViewChild(SceneComponent, {static: false}) sceneRef: SceneComponent;
 
   @Input() loading: boolean;
@@ -26,11 +27,13 @@ export class MainComponent implements OnInit {
   @Input() gameState: GameState;
   @Input() myState: PlayerState;
   @Input() enemyState: PlayerState;
+  @Input() button$: Observable<string>;
 
   @Output() gameOptionsChange = new EventEmitter<GameOptions>();
   @Output() updateGameStatus = new EventEmitter<GameStatus>();
   @Output() updateMyStatus = new EventEmitter<UpdatePlayerStateParams>();
   @Output() updateEnemyStatus = new EventEmitter<UpdatePlayerStateParams>();
+  private onDestroy$ = new Subject();
 
   constructor(public dialog: MatDialog, private se: SoundEngineService) {
   }
@@ -59,11 +62,20 @@ export class MainComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.button$.pipe(takeUntil(this.onDestroy$)).subscribe(button => {
+      if (button === '10') {
+        this.openSettingDialog();
+      } else if (button === '11' && this.gameState.status === 'end') {
+        this.reset();
+      }
+    });
+  }
+  ngOnDestroy(): void {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
   }
 
   newGame() {
-    this.se.play('select', 0, 0.35);
-
     this.updateGameStatus.emit('prepare');
   }
 
@@ -106,5 +118,11 @@ export class MainComponent implements OnInit {
       }
     });
     this.newGame();
+  }
+
+  reset() {
+    this.updateMyStatus.emit({status: 'prepare', value: undefined});
+    this.updateEnemyStatus.emit({status: 'prepare', value: undefined});
+    this.updateGameStatus.emit('wait');
   }
 }
