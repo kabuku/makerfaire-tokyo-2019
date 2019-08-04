@@ -14,6 +14,7 @@ import {PlayerState} from '../models/player-state';
 import {SpriteText2D, textAlign} from 'three-text2d';
 import {UpdatePlayerStateParams} from '../services/game-logic.service';
 import {SoundEngineService} from '../services/sound-engine.service';
+import {MediaRecorderService} from '../services/media-recorder.service';
 
 
 export type BattleResult = 'draw' | 'win' | 'lose';
@@ -125,11 +126,15 @@ export class SceneComponent implements AfterViewInit {
   }
 
 
-  constructor(private se: SoundEngineService) {
+  constructor(private se: SoundEngineService, private recorder: MediaRecorderService) {
   }
 
   @Input()
   public assets: Assets;
+
+  public replayMovie: boolean;
+
+  public playMovie: Blob;
 
   @Output() changeGameState = new EventEmitter<GameStatus>();
   @Output() changeEnemyState = new EventEmitter<UpdatePlayerStateParams>();
@@ -148,6 +153,13 @@ export class SceneComponent implements AfterViewInit {
 
   @ViewChild('hpBar', {static: false})
   private hpBarDiv: ElementRef;
+
+  @ViewChild('replayVideo', {static: false})
+  private replayVideoRef: ElementRef;
+
+  get replayVideo(): HTMLVideoElement {
+    return this.replayVideoRef.nativeElement;
+  }
 
   private hitTargets: THREE.Object3D[] = [];
 
@@ -175,7 +187,7 @@ export class SceneComponent implements AfterViewInit {
   private _enemyState: PlayerState;
 
   private startStartCountdown() {
-
+    this.recorder.startScreenCapture();
     const startCountdown = new SpriteText2D('5', {
       align: textAlign.center,
       font: '50px PixelMPlus',
@@ -774,10 +786,21 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private finishGame(notifyEvent: boolean) {
+
     if (this.stats.end) {
       return;
     }
     this.stats.end = true;
+    const blob = this.recorder.stop();
+    if (blob) {
+      this.playMovie = blob;
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.download = `${new Date().toISOString().replace(':', '-')}-${this.myState.robotName}.webm`;
+      a.href = blobUrl;
+      a.dataset.downloadurl = ['video/webm', a.download, a.href].join(':');
+      a.click();
+    }
     this.se.stop('bgm');
     // tslint:disable-next-line:max-line-length
     const myResult: BattleResult = this.myState.hp === this.enemyState.hp ? 'draw' : this.myState.hp > this.enemyState.hp ? 'win' : 'lose';
@@ -792,5 +815,15 @@ export class SceneComponent implements AfterViewInit {
     this.changeGameState.emit('end');
     this.changeEnemyState.emit({status: myResult, value: undefined});
     this.changeEnemyState.emit({status: enemyResult, value: undefined});
+  }
+
+  startReplayMovie() {
+    this.replayMovie = true;
+    this.replayVideo.src = URL.createObjectURL(this.playMovie);
+    this.replayVideo.play();
+  }
+  stopReplayMovie() {
+    this.replayVideo.pause();
+    this.replayMovie = false;
   }
 }

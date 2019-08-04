@@ -28,6 +28,7 @@
     "@ngrx/schematics": "^8.0.1",
     "@ngrx/store": "^8.0.1",
     "@ngrx/store-devtools": "^8.0.1",
+    "@types/dom-mediacapture-record": "^1.0.1",
     "@types/stats.js": "^0.17.0",
     "ar.js": "^1.7.2",
     "dat.gui": "^0.7.6",

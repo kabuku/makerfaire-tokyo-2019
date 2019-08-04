@@ -1,8 +1,17 @@
 <div >
-  <div #root [ngClass]="{damage: stats && stats.damaging}"></div>
-  <div class="statusBar">
-    <div #hpBar class="hpBar">HP</div>
-    <div #chargeBar class="chargeBar">GUN ENERGY</div>
+  <div *ngIf="!replayMovie">
+    <div #root [ngClass]="{damage: stats && stats.damaging}"></div>
+    <div class="statusBar">
+      <div #hpBar class="hpBar">HP</div>
+      <div #chargeBar class="chargeBar">GUN ENERGY</div>
+    </div>
+    <div *ngIf="playMovie">
+      <button mat-flat-button (click)="startReplayMovie()" >プレイ動画</button>
+    </div>
+  </div>
+  <div [hidden]="!replayMovie">
+    <video #replayVideo controls ></video>
+    <button mat-flat-button (click)="stopReplayMovie()">ストップ</button>
   </div>
 </div>
 

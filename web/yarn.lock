@@ -384,6 +384,11 @@
   resolved "https://registry.yarnpkg.com/@types/dat-gui/-/dat-gui-0.6.3.tgz#2285a22ee28fbed05f3932dda9144d18c9903b5d"
   integrity sha512-N0JUd1/jrKQ00w0lz6uyx/4XhJ+qQb9Ir05DEzP4YS5N+vQUyKtcyVBG/u+NF7EkAkHHYDyzpvYf0AMS89R2OQ==
 
+"@types/dom-mediacapture-record@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/dom-mediacapture-record/-/dom-mediacapture-record-1.0.1.tgz#9936ecf8fd8095bde40528190995b73bf325e034"
+  integrity sha512-NroLu+QuHP7VJKUWBs3RgAXQoX8lEHaScG7ACOxPIOQ6VaM7lvTLVOp9bsFspkIPlCMElLHRJCYdA47rDTZLTw==
+
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
