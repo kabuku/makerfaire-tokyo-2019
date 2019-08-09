@@ -1,5 +1,6 @@
 import time
 import pprint
+from datetime import datetime
 import argparse
 import pygame
 import paho.mqtt.client as mqtt
@@ -28,9 +29,9 @@ def get_min_duty_cycle_right():
 
 
 class Servo(object):
-    def __init__(self, duty_cycle_max, duty_cycle_min):
-        self.duty_cycle_max = duty_cycle_max
-        self.duty_cycle_min = duty_cycle_min
+    def __init__(self, duty_cycle_max, duty_cycle_min, gain=0):
+        self.duty_cycle_max = duty_cycle_max - gain
+        self.duty_cycle_min = duty_cycle_min + gain
 
     def __repr__(self):
         return "{} {}".format(self.duty_cycle_max, self.duty_cycle_min)
@@ -53,26 +54,31 @@ class MQTTClient(mqtt.Client):
         return payload
 
     def publish_command(self, command):
-        self.publish("{}/command".format(self.robot_name), command, qos=0)
+        self.publish("{}/status".format(self.robot_name), command, qos=0)
         print(command)
 
     def publish_controller_button(self, button):
         from datetime import datetime
         self.publish("{}/controller/button".format(self.robot_name), "{},{}".format(datetime.now().isoformat(), button), qos=0)
+        print(button)
+
 
 class JCU3712FBKController(object):
 
-    def __init__(self, joystick_id, left_max, left_min, right_max, right_min, client: MQTTClient):
+    def __init__(self, joystick_id, left_max, left_min, right_max, right_min, client: MQTTClient, left_rotate=7, right_rotate=7.6):
 
         pygame.init()
         pygame.joystick.init()
         self.controller = pygame.joystick.Joystick(joystick_id)
         self.controller.init()
         self.axis_data = {}
-        self.left_servo = Servo(duty_cycle_max=left_max, duty_cycle_min=left_min)
-        self.right_servo = Servo(duty_cycle_max=right_max, duty_cycle_min=right_min)
+        gain = 4
+        self.left_servo = Servo(duty_cycle_max=left_max, duty_cycle_min=left_min, gain=gain)
+        self.right_servo = Servo(duty_cycle_max=right_max, duty_cycle_min=right_min, gain=gain)
         self.client = client
         self.adjustment = 0.1
+        self.left_rotate = left_rotate
+        self.right_rotate = right_rotate
         print("left: {}, right: {}".format(self.left_servo, self.right_servo))
 
     def listen(self):
@@ -86,7 +92,7 @@ class JCU3712FBKController(object):
                         # print(event.button)
                         self.client.publish_controller_button(event.button)
                         if event.button == 3:
-                            self.client.publish_command("shot")
+                            self.client.publish_command("{},shot".format(datetime.now().isoformat()))
 
                         if event.button == 4:
                             self.left_servo.duty_cycle_min -= self.adjustment
@@ -119,10 +125,11 @@ class JCU3712FBKController(object):
                         # previous_payload = self.client.publish_servo(left=0, right=0, previous_payload=previous_payload)
                     elif self.axis_data.get(0) == 1:
                         # 右旋回
-                        previous_payload = self.client.publish_servo(left=9, right=0, previous_payload=previous_payload)
+
+                        previous_payload = self.client.publish_servo(left=self.right_rotate, right=self.right_rotate, previous_payload=previous_payload)
                     elif self.axis_data.get(0) == -1:
                         # 左旋回
-                        previous_payload = self.client.publish_servo(left=0, right=5, previous_payload=previous_payload)
+                        previous_payload = self.client.publish_servo(left=self.left_rotate, right=self.left_rotate, previous_payload=previous_payload)
 
                     else:
                         previous_payload = self.client.publish_servo(left=0.1, right=0.1, previous_payload=previous_payload)
@@ -131,7 +138,7 @@ class JCU3712FBKController(object):
             pass
 
         self.client.publish_servo(left=0, right=0)
-        print("{}, left {}, right {}".format(self.client.robot_name, self.left_servo, self.right_servo))
+        print("{}, left {}, right {} {}".format(self.client.robot_name, self.left_servo, self.right_servo, self.client.robot_name))
         self.client.disconnect()
 
 
@@ -145,10 +152,13 @@ def main():
     parser.add_argument("--left_min", default=2.5, type=float)
     parser.add_argument("--right_max", default=12, type=float)
     parser.add_argument("--right_min", default=2.5, type=float)
+    parser.add_argument("--left_rotate", default=7.2, type=float)
+    parser.add_argument("--right_rotate", default=7.6, type=float)
     args = parser.parse_args()
     client = MQTTClient(args.robot_name)
-    client.connect(args.broker, args.port, 60)
-    ps4 = JCU3712FBKController(joystick_id=args.id, left_max=args.left_max, left_min=args.left_min, right_max=args.right_max, right_min=args.right_min, client=client)
+    client.connect(args.broker, args.port, 3600)
+    ps4 = JCU3712FBKController(joystick_id=args.id, left_max=args.left_max, left_min=args.left_min, right_max=args.right_max, right_min=args.right_min, client=client, right_rotate=args.right_rotate,
+                               left_rotate=args.left_rotate)
     ps4.listen()
 
 
