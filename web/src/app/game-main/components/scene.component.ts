@@ -451,7 +451,9 @@ export class SceneComponent implements AfterViewInit {
       }
       const intersectionObject = intersections[0];
 
-      if (intersectionObject.object.parent && intersectionObject.object.parent.name && (intersectionObject.object.parent.name.startsWith('enemy'))) {
+      if (intersectionObject.object.parent &&
+        intersectionObject.object.parent.name &&
+        intersectionObject.object.parent.name.startsWith('enemy')) {
         if (this.stats.start) {
           this.enemyState.hp -= 10;
         }
@@ -505,11 +507,6 @@ export class SceneComponent implements AfterViewInit {
     } else if (this._gameOptions.arSourceOptions.sourceType === 'stream') {
       (arToolkitSource.domElement as HTMLVideoElement).srcObject = this._gameOptions.arSourceOptions.stream;
     }
-    // handle resize
-    window.addEventListener('resize', () => {
-      onResize();
-    });
-
     function onResize() {
       arToolkitSource.onResize();
       arToolkitSource.copySizeTo(renderer.domElement);
@@ -593,7 +590,7 @@ export class SceneComponent implements AfterViewInit {
   }
 
   private setupEnvironment(scene: THREE.Scene, arToolkitContext: THREEx.ArToolkitContext) {
-
+    // TODO まとめる
     const envMarkerOptions: EnvMarker[] = [
       {
         name: 'tree1',
@@ -675,7 +672,7 @@ export class SceneComponent implements AfterViewInit {
         ],
       },
     ];
-    envMarkerOptions.forEach((em, i) => {
+    envMarkerOptions.forEach(em => {
       const markerRoot = new THREE.Group();
       markerRoot.name = em.name;
       const artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
@@ -776,7 +773,6 @@ export class SceneComponent implements AfterViewInit {
       }
       visibleMarkers.sort((m1, m2) => Math.abs(m2.rotation.z) - Math.abs(m1.rotation.z)).forEach((marker, i) => {
         if (i !== 0) {
-
           marker.visible = false;
         }
       });
