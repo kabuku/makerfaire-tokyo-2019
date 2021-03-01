@@ -38,7 +38,7 @@
     "rxjs": "~6.4.0",
     "shader-particle-engine": "^1.0.6",
     "stats.js": "^0.17.0",
-    "three": "^0.106.2",
+    "three": "^0.125.0",
     "three-text2d": "^0.5.3",
     "three-vrcontrols-module": "^2.2.1",
     "three-vreffect-module": "^2.2.0",
